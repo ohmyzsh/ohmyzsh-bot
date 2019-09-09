@@ -1,5 +1,5 @@
 {
-  "name": "ohmyzsh-bot",
+  "name": "ohmyzsh",
   "version": "1.0.0",
   "description": "A bot to manage the ohmyzsh project",
   "author": "Marc Cornellà <marc.cornella@live.com>",
@@ -14,27 +14,27 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "dev": "nodemon --exec \"npm start\"",
-    "start": "probot run ./lib/index.js",
+    "dev": "nodemon --watch src --exec \"npm run build && npm run start\"",
     "lint": "standard **/*.ts --fix",
+    "start": "probot run ./lib/index.js",
     "test": "jest && standard **/*.ts",
     "test:watch": "jest --watch --notify --notifyMode=change --coverage"
   },
   "dependencies": {
-    "nock": "^10.0.0",
     "@types/nock": "^9.3.0",
-    "probot": "^7.2.0"
+    "@types/node": "^11.9.0",
+    "nock": "^10.0.0",
+    "probot": "^9.3.4",
+    "typescript": "^3.3.1"
   },
   "devDependencies": {
     "@types/jest": "^24.0.0",
-    "@types/node": "^11.9.0",
     "eslint-plugin-typescript": "^0.14.0",
     "jest": "^24.0.0",
     "nodemon": "^1.17.2",
     "smee-client": "^1.0.2",
     "standard": "^12.0.1",
     "ts-jest": "^24.0.0",
-    "typescript": "^3.3.1",
     "typescript-eslint-parser": "^22.0.0"
   },
   "engines": {

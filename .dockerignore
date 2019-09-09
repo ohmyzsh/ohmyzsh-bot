@@ -9,5 +9,7 @@ node_modules
 !mock-cert.pem
 
 # tests
+test
 coverage
+
 npm-debug.log
