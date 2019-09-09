@@ -146,5 +146,8 @@ main() {
 	fi
 }
 
-set -x
+case "$LOG_LEVEL" in
+	trace|debug) set -x ;;
+esac
+
 main "$@"
