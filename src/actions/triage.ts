@@ -6,7 +6,8 @@ export = async function triage (context: Context) {
   const PRNumber = context.payload.number
   const oldLabels = context.payload.pull_request.labels.map((label: { name: string }) => label.name)
 
-  // Get clone URL of repository and export it and the repository directory
+  // Get clone URL of repository and repository directory
+  // Export them to the environment for the triage script
   const repoURL = context.payload.repository.clone_url
   process.env['REPO_URL'] = repoURL
   process.env['REPO_DIR'] = `${process.cwd()}/github`
