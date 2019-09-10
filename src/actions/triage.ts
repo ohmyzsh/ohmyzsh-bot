@@ -23,9 +23,11 @@ export = async function triage (context: Context) {
 
 function labelsOfPR (PRNumber: number): string[] {
   // Path to script based on app root
-  const zshScript = `${process.cwd()}/scripts/triage.zsh`
+  const zshScript = `${process.cwd()}/src/actions/triage.zsh`
+
   // Synchronous call to the script
   const stdout = execSync(`${zshScript} ${PRNumber}`).toString()
+
   // Zsh uses single quotes and the JSON parser only accepts double quotes
   // NOTE: this assumes there are no "s in the original string
   return JSON.parse(stdout.replace(/'/g, '"'))

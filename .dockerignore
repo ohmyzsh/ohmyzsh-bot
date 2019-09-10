@@ -6,7 +6,6 @@ node_modules
 # secrets
 .env
 *.pem
-!mock-cert.pem
 
 # tests
 test
