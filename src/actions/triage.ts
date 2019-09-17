@@ -12,8 +12,13 @@ export = async function triage (context: Context) {
   process.env['REPO_URL'] = repoURL
   process.env['REPO_DIR'] = `${process.cwd()}/github`
 
-  // Get new PR labels
-  const newLabels = labelsOfPR(PRNumber)
+  try {
+    // Get new PR labels
+    var newLabels = labelsOfPR(PRNumber)
+  } catch (err) {
+    context.log.error(err, 'Error in triage.zsh script call')
+    return
+  }
 
   // Check if old and new labels differ. Otherwise we can skip an API call
   if (different(oldLabels, newLabels)) {
@@ -27,6 +32,7 @@ function labelsOfPR (PRNumber: number): string[] {
   const zshScript = `${process.cwd()}/src/actions/triage.zsh`
 
   // Synchronous call to the script
+  // Can throw an error if the script returns a non-zero exit code
   const stdout = execSync(`${zshScript} ${PRNumber}`).toString()
 
   // Zsh uses single quotes and the JSON parser only accepts double quotes
