@@ -1,0 +1,19 @@
+[
+  "Area: core",
+  "Area: init",
+  "Area: installer",
+  "Area: updater",
+  "Area: plugin",
+  "Area: theme",
+  "Area: uninstaller",
+  "New: plugin",
+  "New: theme",
+  "Plugin: aws",
+  "Plugin: git",
+  "Plugin: mercurial",
+  "Plugin: tmux",
+  "Topic: alias",
+  "Topic: bindkey",
+  "Topic: completion",
+  "Status: conflicts"
+]

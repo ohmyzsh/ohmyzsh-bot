@@ -1,10 +1,13 @@
 import { Context } from 'probot' // eslint-disable-line no-unused-vars
 import { execSync } from 'child_process'
 
+// List of labels determined via the triage function
+import codeLabels from './labels.json'
+
 export = async function triage (context: Context) {
   // Get PR number and current PR labels
   const PRNumber = context.payload.number
-  const oldLabels = context.payload.pull_request.labels.map((label: { name: string }) => label.name)
+  const oldLabels: string[] = context.payload.pull_request.labels.map((label: { name: string }) => label.name)
 
   // Get clone URL of repository and repository directory
   // Export them to the environment for the triage script
@@ -19,6 +22,9 @@ export = async function triage (context: Context) {
     context.log.error(err, 'Error in triage.zsh script call')
     return
   }
+
+  // Add the labels that are not determined via the triage function
+  newLabels.concat(oldLabels.filter(label => !codeLabels.includes(label)))
 
   // Check if old and new labels differ. Otherwise we can skip an API call
   if (different(oldLabels, newLabels)) {
@@ -40,10 +46,11 @@ function labelsOfPR (PRNumber: number): string[] {
   return JSON.parse(stdout.replace(/'/g, '"'))
 }
 
-// Precondition: A and B are sorted
-// Returns: true if arrays are different, false if not.
 function different (A: string[], B: string[]): boolean {
   if (A.length !== B.length) return true
+
+  A.sort()
+  B.sort()
 
   for (let i = 0; i < A.length; i++) {
     if (A[i] !== B[i]) return true
