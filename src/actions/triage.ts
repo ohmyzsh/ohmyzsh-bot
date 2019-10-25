@@ -1,7 +1,10 @@
 import { Context } from 'probot' // eslint-disable-line no-unused-vars
 import { execSync } from 'child_process'
 
-// List of labels determined via the triage function
+// List of labels determined *only* via the triage function.
+// The result of the triage function will have precedence
+// on these labels over a maintainer having applied them from
+// the GitHub web UI.
 import codeLabels from './labels.json'
 
 export = async function triage (context: Context) {
