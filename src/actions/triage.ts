@@ -31,6 +31,10 @@ export = async function triage (context: Context) {
 
   // Check if old and new labels differ. Otherwise we can skip an API call
   if (different(oldLabels, newLabels)) {
+    // Log label replacement
+    context.log.debug('Labels before:', oldLabels)
+    context.log.debug('Labels after:', newLabels)
+
     const params = context.repo({ issue_number: PRNumber, labels: newLabels })
     await context.github.issues.replaceLabels(params)
   }
