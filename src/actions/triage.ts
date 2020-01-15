@@ -27,7 +27,7 @@ export = async function triage (context: Context) {
   }
 
   // Add the labels that are not determined via the triage function
-  newLabels.concat(oldLabels.filter(label => !codeLabels.includes(label)))
+  newLabels = newLabels.concat(oldLabels.filter(label => !codeLabels.includes(label)))
 
   // Check if old and new labels differ. Otherwise we can skip an API call
   if (different(oldLabels, newLabels)) {
