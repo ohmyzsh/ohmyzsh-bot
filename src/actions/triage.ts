@@ -12,6 +12,9 @@ export = async function triage (context: Context) {
   const PRNumber = context.payload.number
   const oldLabels: string[] = context.payload.pull_request.labels.map((label: { name: string }) => label.name)
 
+  // A little bit of helpful logging
+  context.log.info('PR Number:', PRNumber)
+
   // Get clone URL of repository and repository directory
   // Export them to the environment for the triage script
   const repoURL = context.payload.repository.clone_url
@@ -32,11 +35,13 @@ export = async function triage (context: Context) {
   // Check if old and new labels differ. Otherwise we can skip an API call
   if (different(oldLabels, newLabels)) {
     // Log label replacement
-    context.log.debug('Labels before:', oldLabels)
-    context.log.debug('Labels after:', newLabels)
+    context.log.info('Old labels:', oldLabels)
+    context.log.info('New labels:', newLabels)
 
     const params = context.repo({ issue_number: PRNumber, labels: newLabels })
     await context.github.issues.replaceLabels(params)
+  } else {
+    context.log.info('No labels changed')
   }
 }
 

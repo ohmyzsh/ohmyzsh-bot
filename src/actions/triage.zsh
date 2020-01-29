@@ -45,7 +45,7 @@ LABELS=(
 has_conflicts() {
 	# user.name and user.email need to be set, otherwise a merge fails
 	git -c user.name=bot -c user.email=b@o.t \
-		merge --no-commit --no-ff $GITHUB_SHA && ret=1 || ret=0
+		merge --no-commit --no-ff $GITHUB_SHA &>/dev/null && ret=1 || ret=0
 	git merge --abort &>/dev/null
 	return $ret
 }
