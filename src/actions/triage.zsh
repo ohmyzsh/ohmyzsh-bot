@@ -93,8 +93,11 @@ pr_labels() {
 			plugins/git/*) labels+=($LABELS[plugin_git]) ;;
 			plugins/mercurial/*) labels+=($LABELS[plugin_mercurial]) ;;
 			plugins/tmux/*) labels+=($LABELS[plugin_tmux]) ;;
-			(|*/)README.*) labels+=($LABELS[documentation]) ;;
 		esac
+
+		if [[ "$file" = (README.*|*/README.*) ]]; then
+			labels+=($LABELS[documentation])
+		fi
 
 		case ${file:t} in
 			*.zsh) # check if or aliases or bindkeys are added, deleted or modified
