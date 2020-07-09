@@ -20,7 +20,7 @@ export = async function triage (context: Context) {
   process.env['REPO_URL'] = repoURL
   process.env['REPO_DIR'] = `${process.cwd()}/github`
 
-  let newLabels
+  let newLabels: string[] = []
   try {
     // Get new PR labels
     newLabels = labelsOfPR(PRNumber)
@@ -43,17 +43,6 @@ export = async function triage (context: Context) {
   } else {
     context.log.info('No labels changed')
   }
-}
-
-function reviewersOfPR (PRNumber: number): string[] {
-  // Path to script based on app root
-  const zshScript = `${process.cwd()}/src/actions/reviewers.zsh`
-
-  const reviewers: string[] = []
-
-  // TODO: Use a ZSH script or write the logic in TypeScript
-
-  return reviewers
 }
 
 /**
