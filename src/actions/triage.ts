@@ -1,6 +1,5 @@
 import { Context } from 'probot' // eslint-disable-line no-unused-vars
 import { execSync } from 'child_process'
-
 // List of labels determined *only* via the triage function.
 // The result of the triage function will have precedence
 // on these labels over a maintainer having applied them from
@@ -21,9 +20,10 @@ export = async function triage (context: Context) {
   process.env['REPO_URL'] = repoURL
   process.env['REPO_DIR'] = `${process.cwd()}/github`
 
+  let newLabels
   try {
     // Get new PR labels
-    var newLabels = labelsOfPR(PRNumber)
+    newLabels = labelsOfPR(PRNumber)
   } catch (err) {
     context.log.error(err, 'Error in triage.zsh script call')
     return
