@@ -45,6 +45,21 @@ export = async function triage (context: Context) {
   }
 }
 
+function reviewersOfPR (PRNumber: number): string[] {
+  // Path to script based on app root
+  const zshScript = `${process.cwd()}/src/actions/reviewers.zsh`
+
+  const reviewers: string[] = []
+
+  // TODO: Use a ZSH script or write the logic in TypeScript
+
+  return reviewers
+}
+
+/**
+ * Executes the zsh script that assign labels to the PR of PRNumber.
+ * The zsh script assign the labels basing on the files that have been changed.
+ */
 function labelsOfPR (PRNumber: number): string[] {
   // Path to script based on app root
   const zshScript = `${process.cwd()}/src/actions/triage.zsh`
