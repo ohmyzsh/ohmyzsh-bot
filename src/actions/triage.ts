@@ -5,6 +5,7 @@ import { execSync } from 'child_process'
 // on these labels over a maintainer having applied them from
 // the GitHub web UI.
 import codeLabels from './labels.json'
+import { different } from "../utils";
 
 export = async function triage (context: Context) {
   // Get PR number and current PR labels
@@ -60,17 +61,4 @@ function labelsOfPR (PRNumber: number): string[] {
   // Zsh uses single quotes and the JSON parser only accepts double quotes
   // NOTE: this assumes there are no "s in the original string
   return JSON.parse(stdout.replace(/'/g, '"'))
-}
-
-function different (A: string[], B: string[]): boolean {
-  if (A.length !== B.length) return true
-
-  A.sort()
-  B.sort()
-
-  for (let i = 0; i < A.length; i++) {
-    if (A[i] !== B[i]) return true
-  }
-
-  return false
 }
