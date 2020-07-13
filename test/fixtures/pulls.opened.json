@@ -1,18 +1,18 @@
 {
   "action": "opened",
-  "number": 7,
+  "number": 13,
   "pull_request": {
-    "url": "https://api.github.com/repos/bartekpacia/ohmyzsh/pulls/7",
-    "id": 446832189,
-    "node_id": "MDExOlB1bGxSZXF1ZXN0NDQ2ODMyMTg5",
-    "html_url": "https://github.com/bartekpacia/ohmyzsh/pull/7",
-    "diff_url": "https://github.com/bartekpacia/ohmyzsh/pull/7.diff",
-    "patch_url": "https://github.com/bartekpacia/ohmyzsh/pull/7.patch",
-    "issue_url": "https://api.github.com/repos/bartekpacia/ohmyzsh/issues/7",
-    "number": 7,
+    "url": "https://api.github.com/repos/bartekpacia/ohmyzsh/pulls/13",
+    "id": 448254133,
+    "node_id": "MDExOlB1bGxSZXF1ZXN0NDQ4MjU0MTMz",
+    "html_url": "https://github.com/bartekpacia/ohmyzsh/pull/13",
+    "diff_url": "https://github.com/bartekpacia/ohmyzsh/pull/13.diff",
+    "patch_url": "https://github.com/bartekpacia/ohmyzsh/pull/13.patch",
+    "issue_url": "https://api.github.com/repos/bartekpacia/ohmyzsh/issues/13",
+    "number": 13,
     "state": "open",
     "locked": false,
-    "title": "lol6",
+    "title": "updated gitfast plugin",
     "user": {
       "login": "bartekpacia",
       "id": 40357511,
@@ -33,9 +33,9 @@
       "type": "User",
       "site_admin": false
     },
-    "body": "lol6",
-    "created_at": "2020-07-09T12:35:49Z",
-    "updated_at": "2020-07-09T12:35:49Z",
+    "body": "lol9\r\n\r\ntesting `ohmyzsh-bot`",
+    "created_at": "2020-07-13T13:24:35Z",
+    "updated_at": "2020-07-13T13:24:35Z",
     "closed_at": null,
     "merged_at": null,
     "merge_commit_sha": null,
@@ -46,15 +46,15 @@
     "labels": [],
     "milestone": null,
     "draft": false,
-    "commits_url": "https://api.github.com/repos/bartekpacia/ohmyzsh/pulls/7/commits",
-    "review_comments_url": "https://api.github.com/repos/bartekpacia/ohmyzsh/pulls/7/comments",
+    "commits_url": "https://api.github.com/repos/bartekpacia/ohmyzsh/pulls/13/commits",
+    "review_comments_url": "https://api.github.com/repos/bartekpacia/ohmyzsh/pulls/13/comments",
     "review_comment_url": "https://api.github.com/repos/bartekpacia/ohmyzsh/pulls/comments{/number}",
-    "comments_url": "https://api.github.com/repos/bartekpacia/ohmyzsh/issues/7/comments",
-    "statuses_url": "https://api.github.com/repos/bartekpacia/ohmyzsh/statuses/e3f0cc54f581b82dd4d0fda3944658f327216ec0",
+    "comments_url": "https://api.github.com/repos/bartekpacia/ohmyzsh/issues/13/comments",
+    "statuses_url": "https://api.github.com/repos/bartekpacia/ohmyzsh/statuses/5383477f0701be7802f356fbc5c5db118dc4edd8",
     "head": {
-      "label": "bartekpacia:lol6",
-      "ref": "lol6",
-      "sha": "e3f0cc54f581b82dd4d0fda3944658f327216ec0",
+      "label": "bartekpacia:lol9",
+      "ref": "lol9",
+      "sha": "5383477f0701be7802f356fbc5c5db118dc4edd8",
       "user": {
         "login": "bartekpacia",
         "id": 40357511,
@@ -142,14 +142,14 @@
         "releases_url": "https://api.github.com/repos/bartekpacia/ohmyzsh/releases{/id}",
         "deployments_url": "https://api.github.com/repos/bartekpacia/ohmyzsh/deployments",
         "created_at": "2020-07-08T09:22:05Z",
-        "updated_at": "2020-07-09T10:25:56Z",
-        "pushed_at": "2020-07-09T12:35:33Z",
+        "updated_at": "2020-07-12T23:25:29Z",
+        "pushed_at": "2020-07-13T13:24:18Z",
         "git_url": "git://github.com/bartekpacia/ohmyzsh.git",
         "ssh_url": "git@github.com:bartekpacia/ohmyzsh.git",
         "clone_url": "https://github.com/bartekpacia/ohmyzsh.git",
         "svn_url": "https://github.com/bartekpacia/ohmyzsh",
         "homepage": "https://ohmyz.sh",
-        "size": 6996,
+        "size": 6983,
         "stargazers_count": 0,
         "watchers_count": 0,
         "language": "Shell",
@@ -162,7 +162,7 @@
         "mirror_url": null,
         "archived": false,
         "disabled": false,
-        "open_issues_count": 6,
+        "open_issues_count": 1,
         "license": {
           "key": "mit",
           "name": "MIT License",
@@ -171,15 +171,19 @@
           "node_id": "MDc6TGljZW5zZTEz"
         },
         "forks": 0,
-        "open_issues": 6,
+        "open_issues": 1,
         "watchers": 0,
-        "default_branch": "master"
+        "default_branch": "master",
+        "allow_squash_merge": true,
+        "allow_merge_commit": true,
+        "allow_rebase_merge": true,
+        "delete_branch_on_merge": false
       }
     },
     "base": {
       "label": "bartekpacia:master",
       "ref": "master",
-      "sha": "327ac697c7542f03c69edca1515656a653f23656",
+      "sha": "e3131d98aa056145ed34ef19dfe77efff87be21b",
       "user": {
         "login": "bartekpacia",
         "id": 40357511,
@@ -267,14 +271,14 @@
         "releases_url": "https://api.github.com/repos/bartekpacia/ohmyzsh/releases{/id}",
         "deployments_url": "https://api.github.com/repos/bartekpacia/ohmyzsh/deployments",
         "created_at": "2020-07-08T09:22:05Z",
-        "updated_at": "2020-07-09T10:25:56Z",
-        "pushed_at": "2020-07-09T12:35:33Z",
+        "updated_at": "2020-07-12T23:25:29Z",
+        "pushed_at": "2020-07-13T13:24:18Z",
         "git_url": "git://github.com/bartekpacia/ohmyzsh.git",
         "ssh_url": "git@github.com:bartekpacia/ohmyzsh.git",
         "clone_url": "https://github.com/bartekpacia/ohmyzsh.git",
         "svn_url": "https://github.com/bartekpacia/ohmyzsh",
         "homepage": "https://ohmyz.sh",
-        "size": 6996,
+        "size": 6983,
         "stargazers_count": 0,
         "watchers_count": 0,
         "language": "Shell",
@@ -287,7 +291,7 @@
         "mirror_url": null,
         "archived": false,
         "disabled": false,
-        "open_issues_count": 6,
+        "open_issues_count": 1,
         "license": {
           "key": "mit",
           "name": "MIT License",
@@ -296,35 +300,39 @@
           "node_id": "MDc6TGljZW5zZTEz"
         },
         "forks": 0,
-        "open_issues": 6,
+        "open_issues": 1,
         "watchers": 0,
-        "default_branch": "master"
+        "default_branch": "master",
+        "allow_squash_merge": true,
+        "allow_merge_commit": true,
+        "allow_rebase_merge": true,
+        "delete_branch_on_merge": false
       }
     },
     "_links": {
       "self": {
-        "href": "https://api.github.com/repos/bartekpacia/ohmyzsh/pulls/7"
+        "href": "https://api.github.com/repos/bartekpacia/ohmyzsh/pulls/13"
       },
       "html": {
-        "href": "https://github.com/bartekpacia/ohmyzsh/pull/7"
+        "href": "https://github.com/bartekpacia/ohmyzsh/pull/13"
       },
       "issue": {
-        "href": "https://api.github.com/repos/bartekpacia/ohmyzsh/issues/7"
+        "href": "https://api.github.com/repos/bartekpacia/ohmyzsh/issues/13"
       },
       "comments": {
-        "href": "https://api.github.com/repos/bartekpacia/ohmyzsh/issues/7/comments"
+        "href": "https://api.github.com/repos/bartekpacia/ohmyzsh/issues/13/comments"
       },
       "review_comments": {
-        "href": "https://api.github.com/repos/bartekpacia/ohmyzsh/pulls/7/comments"
+        "href": "https://api.github.com/repos/bartekpacia/ohmyzsh/pulls/13/comments"
       },
       "review_comment": {
         "href": "https://api.github.com/repos/bartekpacia/ohmyzsh/pulls/comments{/number}"
       },
       "commits": {
-        "href": "https://api.github.com/repos/bartekpacia/ohmyzsh/pulls/7/commits"
+        "href": "https://api.github.com/repos/bartekpacia/ohmyzsh/pulls/13/commits"
       },
       "statuses": {
-        "href": "https://api.github.com/repos/bartekpacia/ohmyzsh/statuses/e3f0cc54f581b82dd4d0fda3944658f327216ec0"
+        "href": "https://api.github.com/repos/bartekpacia/ohmyzsh/statuses/5383477f0701be7802f356fbc5c5db118dc4edd8"
       }
     },
     "author_association": "OWNER",
@@ -338,7 +346,7 @@
     "review_comments": 0,
     "maintainer_can_modify": false,
     "commits": 1,
-    "additions": 1,
+    "additions": 2,
     "deletions": 0,
     "changed_files": 1
   },
@@ -409,14 +417,14 @@
     "releases_url": "https://api.github.com/repos/bartekpacia/ohmyzsh/releases{/id}",
     "deployments_url": "https://api.github.com/repos/bartekpacia/ohmyzsh/deployments",
     "created_at": "2020-07-08T09:22:05Z",
-    "updated_at": "2020-07-09T10:25:56Z",
-    "pushed_at": "2020-07-09T12:35:33Z",
+    "updated_at": "2020-07-12T23:25:29Z",
+    "pushed_at": "2020-07-13T13:24:18Z",
     "git_url": "git://github.com/bartekpacia/ohmyzsh.git",
     "ssh_url": "git@github.com:bartekpacia/ohmyzsh.git",
     "clone_url": "https://github.com/bartekpacia/ohmyzsh.git",
     "svn_url": "https://github.com/bartekpacia/ohmyzsh",
     "homepage": "https://ohmyz.sh",
-    "size": 6996,
+    "size": 6983,
     "stargazers_count": 0,
     "watchers_count": 0,
     "language": "Shell",
@@ -429,7 +437,7 @@
     "mirror_url": null,
     "archived": false,
     "disabled": false,
-    "open_issues_count": 6,
+    "open_issues_count": 1,
     "license": {
       "key": "mit",
       "name": "MIT License",
@@ -438,7 +446,7 @@
       "node_id": "MDc6TGljZW5zZTEz"
     },
     "forks": 0,
-    "open_issues": 6,
+    "open_issues": 1,
     "watchers": 0,
     "default_branch": "master"
   },
