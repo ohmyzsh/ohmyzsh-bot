@@ -27,7 +27,8 @@ export = async function assign(context: Context) {
     context.log.info("New reviewers:", newReviewers)
 
     const params = context.repo({ pull_number: PRnumber, reviewers: newReviewers })
-    await context.github.pulls.createReviewRequest(params)
+    const response = await context.github.pulls.createReviewRequest(params)
+    context.log.info("Status:", response.headers.status)
   } else {
     context.log.info("No reviewers changed")
   }
@@ -39,33 +40,51 @@ export = async function assign(context: Context) {
 async function reviewersOfPR(
   context: Context,
   PRnumber: number,
-  owner: string,
+  repoOwner: string,
   repo: string
 ): Promise<string[]> {
   const reviewers: string[] = []
 
   const codeownersResponse = await context.github.repos.getContents({
-    owner: owner,
+    owner: repoOwner,
     repo: repo,
     path: ".github/CODEOWNERS",
   })
 
   const modifiedFilesResponse = await context.github.pulls.listFiles({
-    owner: owner,
+    owner: repoOwner,
     repo: repo,
     pull_number: PRnumber,
   })
   context.log.info(modifiedFilesResponse)
 
   const filesData: any = modifiedFilesResponse.data
+  const filenames: string[] = []
   for (const file of filesData) {
     context.log.info(`${file.status} file ${file.filename}`)
+    filenames.push(file.filename)
   }
 
   const data: any = codeownersResponse.data
 
-  const codeowners = Buffer.from(data.content, "base64").toString()
-  context.log.info(codeowners)
+  const codeownersFile = Buffer.from(data.content, "base64").toString()
+  context.log.info(codeownersFile)
+
+  for (const line of codeownersFile.split("\n")) {
+    const [codePath, codeOwner] = line.split(" ")
+
+    // Ignore first line and empty newline at the end of the file
+    if (!codeOwner?.includes("@")) {
+      continue
+    }
+
+    for (const filename of filenames) {
+      if (filename.includes(codePath)) {
+        context.log.info(`${filename} was modified. ${codeOwner} owns ${codePath}`)
+        reviewers.push(codeOwner)
+      }
+    }
+  }
 
   return reviewers
 }
