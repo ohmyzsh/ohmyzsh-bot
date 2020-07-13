@@ -3,40 +3,42 @@ import { different } from "../utils"
 
 export = async function assign(context: Context) {
   // Get PR number and current PR reviewers
-  const PRNumber = context.payload.number
+  const PRnumber = context.payload.number
   const oldReviewers: string[] = context.payload.pull_request.requested_reviewers.map(
     (reviewer: { login: string }) => reviewer
   )
 
-  // A little bit of helpful logging
-  context.log.info("PR Number:", PRNumber)
-
-  // Get clone URL of repository and repository directory
-  // Export them to the environment for the triage script
-  const repoURL = context.payload.repository.clone_url
-  process.env["REPO_URL"] = repoURL
-  process.env["REPO_DIR"] = `${process.cwd()}/github`
+  context.log.info("PR number:", PRnumber)
 
   const owner = context.payload.pull_request.head.user.login
   const repo = context.payload.pull_request.head.repo.name
 
-  const response = await context.github.repos.getContents({
+  const codeownersResponse = await context.github.repos.getContents({
     owner: owner,
     repo: repo,
     path: ".github/CODEOWNERS",
   })
 
-  const data: any = response.data
-  if (!data.content) {
-    context.log.error("content is falsy. Something is very wrong.")
+  const modifiedFilesResponse = await context.github.pulls.listFiles({
+    owner: owner,
+    repo: repo,
+    pull_number: PRnumber,
+  })
+  context.log.info(modifiedFilesResponse)
+
+  const filesData: any = modifiedFilesResponse.data
+  for (const file of filesData) {
+    context.log.info(`${file.status} file ${file.filename}`)
   }
+
+  const data: any = codeownersResponse.data
 
   const codeowners = Buffer.from(data.content, "base64").toString()
   context.log.info(codeowners)
 
   let newReviewers: string[] = []
   try {
-    newReviewers = reviewersOfPR(PRNumber)
+    newReviewers = reviewersOfPR(PRnumber)
   } catch (err) {
     context.log.error(err, "Error while calling reviewersOfPR function")
     return
@@ -48,7 +50,7 @@ export = async function assign(context: Context) {
     context.log.info("Old reviewers:", oldReviewers)
     context.log.info("New reviewers:", newReviewers)
 
-    const params = context.repo({ pull_number: PRNumber, reviewers: newReviewers })
+    const params = context.repo({ pull_number: PRnumber, reviewers: newReviewers })
     await context.github.pulls.createReviewRequest(params)
   } else {
     context.log.info("No reviewers changed")
