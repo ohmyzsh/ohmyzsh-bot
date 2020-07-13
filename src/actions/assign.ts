@@ -17,6 +17,23 @@ export = async function assign(context: Context) {
   process.env["REPO_URL"] = repoURL
   process.env["REPO_DIR"] = `${process.cwd()}/github`
 
+  const owner = context.payload.pull_request.head.user.login
+  const repo = context.payload.pull_request.head.repo.name
+
+  const response = await context.github.repos.getContents({
+    owner: owner,
+    repo: repo,
+    path: ".github/CODEOWNERS",
+  })
+
+  const data: any = response.data
+  if (!data.content) {
+    context.log.error("content is falsy. Something is very wrong.")
+  }
+
+  const codeowners = Buffer.from(data.content, "base64").toString()
+  context.log.info(codeowners)
+
   let newReviewers: string[] = []
   try {
     newReviewers = reviewersOfPR(PRNumber)
@@ -45,15 +62,12 @@ export = async function assign(context: Context) {
  * @return The list of maintainers of the changed files
  */
 function reviewersOfPR(PRNumber: number): string[] {
-  // Path to script based on app root
-  const zshScript = `${process.cwd()}/src/actions/reviewers.zsh`
-
   const reviewers: string[] = []
 
   // TODO: Parse files that changed in the PR of PRNumber
   // TODO: Find whether any of the changed file has the owner (defined in CODEOWNERS)
   // TODO: If there is a match, request a review from the responsible user (a.k.a assign a PR reviewer)
-  // TODO: Use a ZSH script or write the logic in TypeScript
+  // TODO: Write the logic in TypeScript
 
   return reviewers
 }
