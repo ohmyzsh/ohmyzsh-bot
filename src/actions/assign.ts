@@ -1,12 +1,12 @@
-import { Context } from "probot"
+import { Context, Octokit } from "probot"
 import { different } from "../utils"
 
-export = async function assign(context: Context) {
+async function assign(context: Context) {
   const PRnumber = context.payload.number
   const owner = context.payload.pull_request.head.user.login
   const repo = context.payload.pull_request.head.repo.name
 
-  context.log.info("PR number:", PRnumber, "owner:", owner, "repo:", repo)
+  context.log.info("PR number:", PRnumber, ", owner:", owner, ", repo:", repo)
 
   const oldReviewers: string[] = context.payload.pull_request.requested_reviewers.map(
     (reviewer: { login: string }) => reviewer
@@ -34,6 +34,42 @@ export = async function assign(context: Context) {
   }
 }
 
+interface CodeOwner {
+  path: string
+  username: string
+}
+
+function parseModifiedFiles(filesResponse: Octokit.PullsListFilesResponse): string[] {
+  const modifiedFiles: string[] = []
+
+  for (const file of filesResponse) {
+    modifiedFiles.push(file.filename)
+  }
+
+  return modifiedFiles
+}
+
+function parseCodeOwners(codeownersFile: string): CodeOwner[] {
+  const codeOwners: CodeOwner[] = []
+  for (const line of codeownersFile.split("\n")) {
+    const [path, owner] = line.split(" ")
+
+    // Ignore first line and empty newline at the end of the file
+    if (!owner?.includes("@")) {
+      continue
+    }
+
+    const codeOwner: CodeOwner = {
+      path: path,
+      username: owner,
+    }
+
+    codeOwners.push(codeOwner)
+  }
+
+  return codeOwners
+}
+
 /**
  * @return List of maintainers of the files that were modified in `PRnumber`
  */
@@ -45,46 +81,36 @@ async function reviewersOfPR(
 ): Promise<string[]> {
   const reviewers: string[] = []
 
+  const modifiedFilesResponse = await context.github.pulls.listFiles({
+    owner: repoOwner,
+    repo: repo,
+    pull_number: PRnumber,
+  })
+
+  const filesData: any = modifiedFilesResponse.data
+  const modifiedFiles = parseModifiedFiles(filesData)
+
   const codeownersResponse = await context.github.repos.getContents({
     owner: repoOwner,
     repo: repo,
     path: ".github/CODEOWNERS",
   })
 
-  const modifiedFilesResponse = await context.github.pulls.listFiles({
-    owner: repoOwner,
-    repo: repo,
-    pull_number: PRnumber,
-  })
-  context.log.info(modifiedFilesResponse)
-
-  const filesData: any = modifiedFilesResponse.data
-  const filenames: string[] = []
-  for (const file of filesData) {
-    context.log.info(`${file.status} file ${file.filename}`)
-    filenames.push(file.filename)
-  }
-
   const data: any = codeownersResponse.data
-
   const codeownersFile = Buffer.from(data.content, "base64").toString()
-  context.log.info(codeownersFile)
 
-  for (const line of codeownersFile.split("\n")) {
-    const [codePath, codeOwner] = line.split(" ")
+  const codeOwners = parseCodeOwners(codeownersFile)
 
-    // Ignore first line and empty newline at the end of the file
-    if (!codeOwner?.includes("@")) {
-      continue
-    }
-
-    for (const filename of filenames) {
-      if (filename.includes(codePath)) {
-        context.log.info(`${filename} was modified. ${codeOwner} owns ${codePath}`)
-        reviewers.push(codeOwner)
+  for (const codeOwner of codeOwners) {
+    for (const path of modifiedFiles) {
+      if (path.includes(codeOwner.path)) {
+        context.log.info(`${path} was modified. ${codeOwner.username} owns ${codeOwner.path}`)
+        reviewers.push(codeOwner.username)
       }
     }
   }
 
   return reviewers
 }
+
+export { assign, parseModifiedFiles, parseCodeOwners, CodeOwner }
