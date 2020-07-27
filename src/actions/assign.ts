@@ -9,16 +9,10 @@ async function assign(context: Context) {
   context.log.info("PR number:", PRnumber, ", owner:", owner, ", repo:", repo)
 
   const oldReviewers: string[] = context.payload.pull_request.requested_reviewers.map(
-    (reviewer: { login: string }) => reviewer
+    (reviewer: { login: string }) => reviewer.login
   )
 
-  let newReviewers: string[] = []
-  try {
-    newReviewers = await reviewersOfPR(context, PRnumber, owner, repo)
-  } catch (err) {
-    context.log.error(err, "Error while calling reviewersOfPR function")
-    return
-  }
+  const newReviewers = await reviewersOfPR(context, PRnumber, owner, repo)
 
   // Check if old and new reviewers differ. Otherwise we can skip an API call
   if (different(oldReviewers, newReviewers)) {
@@ -52,12 +46,18 @@ function parseModifiedFiles(filesResponse: Octokit.PullsListFilesResponse): stri
 function parseCodeOwners(codeownersFile: string): CodeOwner[] {
   const codeOwners: CodeOwner[] = []
   for (const line of codeownersFile.split("\n")) {
-    const [path, owner] = line.split(" ")
-
-    // Ignore first line and empty newline at the end of the file
-    if (!owner?.includes("@")) {
+    if (line.length === 0 || line.startsWith("#")) {
       continue
     }
+
+    let [path, owner] = line.split(" ")
+
+    // Ignore first line and empty newline at the end of the file
+    if (!owner?.startsWith("@")) {
+      continue
+    }
+
+    owner = owner.replace("@", "")
 
     const codeOwner: CodeOwner = {
       path: path,
