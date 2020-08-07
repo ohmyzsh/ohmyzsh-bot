@@ -1,7 +1,7 @@
 import { Context, Octokit } from "probot"
 import { different } from "../utils"
 
-async function assignPullRequestReviewers(context: Context) {
+export default async function assignPullRequestReviewers(context: Context) {
   const PRnumber = context.payload.number
   const owner = context.payload.repository.owner.login
   const repo = context.payload.repository.name
@@ -43,10 +43,10 @@ function parseModifiedFiles(filesResponse: Octokit.PullsListFilesResponse): stri
   return modifiedFiles
 }
 
-function parseCodeOwners(codeownersFile: string): CodeOwner[] {
+function parseCodeOwners(codeOwnersFile: string): CodeOwner[] {
   const codeOwners: CodeOwner[] = []
-  for (const line of codeownersFile.split("\n")) {
-    // ignore empty lines and comments
+  for (const line of codeOwnersFile.split("\n")) {
+    // Ignore empty lines and comments
     if (line.length === 0 || line.startsWith("#")) {
       continue
     }
@@ -58,11 +58,9 @@ function parseCodeOwners(codeownersFile: string): CodeOwner[] {
       continue
     }
 
-    owner = owner.slice(1)
-
     const codeOwner: CodeOwner = {
       path: path,
-      username: owner,
+      username: owner.slice(1) // Remove initial '@'
     }
 
     codeOwners.push(codeOwner)
@@ -82,6 +80,7 @@ async function reviewersOfPR(
 ): Promise<string[]> {
   const reviewers: string[] = []
 
+  // Get list of modified files
   const modifiedFilesResponse = await context.github.pulls.listFiles({
     owner: repoOwner,
     repo: repo,
@@ -91,22 +90,28 @@ async function reviewersOfPR(
   const filesData: any = modifiedFilesResponse.data
   const modifiedFiles = parseModifiedFiles(filesData)
 
-  const codeownersResponse = await context.github.repos.getContents({
+  // Get CODEOWNERS file contents
+  const codeOwnersResponse = await context.github.repos.getContents({
     owner: repoOwner,
     repo: repo,
     path: ".github/CODEOWNERS",
   })
 
-  const data: any = codeownersResponse.data
-  const codeownersFile = Buffer.from(data.content, "base64").toString()
+  const codeOwnersData: any = codeOwnersResponse.data
+  const codeOwnersFile = Buffer.from(codeOwnersData.content, "base64").toString()
+  const codeOwners = parseCodeOwners(codeOwnersFile)
 
-  const codeOwners = parseCodeOwners(codeownersFile)
-
+  // Assumptions:
+  // - There can be many files owned by the same owner
+  // - There can be many owners for the same file. For example:
+  //   /plugins/git/git.plugin.zsh could have 2 owners (for /plugins and for /plugins/git)
+  // - The number of codeOwners >> the number of modified files
   for (const codeOwner of codeOwners) {
     for (const path of modifiedFiles) {
       if (path.includes(codeOwner.path)) {
         context.log.info(`${path} was modified. ${codeOwner.username} owns ${codeOwner.path}`)
         reviewers.push(codeOwner.username)
+        break // This user is a reviewer, let's look at the next one
       }
     }
   }
@@ -114,4 +119,4 @@ async function reviewersOfPR(
   return reviewers
 }
 
-export { assignPullRequestReviewers, parseModifiedFiles, parseCodeOwners, CodeOwner }
+export { parseModifiedFiles, parseCodeOwners, CodeOwner }

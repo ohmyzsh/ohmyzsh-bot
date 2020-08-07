@@ -1,13 +1,14 @@
 import { Context } from 'probot' // eslint-disable-line no-unused-vars
 import { execSync } from 'child_process'
+import { different } from "../utils"
+
 // List of labels determined *only* via the triage function.
 // The result of the triage function will have precedence
 // on these labels over a maintainer having applied them from
 // the GitHub web UI.
 import codeLabels from './labels.json'
-import { different } from "../utils";
 
-export = async function triage (context: Context) {
+export default async function triage (context: Context) {
   // Get PR number and current PR labels
   const PRNumber = context.payload.number
   const oldLabels: string[] = context.payload.pull_request.labels.map((label: { name: string }) => label.name)
