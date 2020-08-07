@@ -1,5 +1,6 @@
 import { Context } from 'probot' // eslint-disable-line no-unused-vars
 import { execSync } from 'child_process'
+import { different } from "../utils"
 
 // List of labels determined *only* via the triage function.
 // The result of the triage function will have precedence
@@ -7,7 +8,7 @@ import { execSync } from 'child_process'
 // the GitHub web UI.
 import codeLabels from './labels.json'
 
-export = async function triage (context: Context) {
+export default async function triage (context: Context) {
   // Get PR number and current PR labels
   const PRNumber = context.payload.number
   const oldLabels: string[] = context.payload.pull_request.labels.map((label: { name: string }) => label.name)
@@ -21,9 +22,10 @@ export = async function triage (context: Context) {
   process.env['REPO_URL'] = repoURL
   process.env['REPO_DIR'] = `${process.cwd()}/github`
 
+  let newLabels: string[] = []
   try {
     // Get new PR labels
-    var newLabels = labelsOfPR(PRNumber)
+    newLabels = labelsOfPR(PRNumber)
   } catch (err) {
     context.log.error(err, 'Error in triage.zsh script call')
     return
@@ -45,6 +47,10 @@ export = async function triage (context: Context) {
   }
 }
 
+/**
+ * Executes the zsh script that assign labels to the PR of PRNumber.
+ * The zsh script assign the labels basing on the files that have been changed.
+ */
 function labelsOfPR (PRNumber: number): string[] {
   // Path to script based on app root
   const zshScript = `${process.cwd()}/src/actions/triage.zsh`
@@ -56,17 +62,4 @@ function labelsOfPR (PRNumber: number): string[] {
   // Zsh uses single quotes and the JSON parser only accepts double quotes
   // NOTE: this assumes there are no "s in the original string
   return JSON.parse(stdout.replace(/'/g, '"'))
-}
-
-function different (A: string[], B: string[]): boolean {
-  if (A.length !== B.length) return true
-
-  A.sort()
-  B.sort()
-
-  for (let i = 0; i < A.length; i++) {
-    if (A[i] !== B[i]) return true
-  }
-
-  return false
 }

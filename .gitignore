@@ -11,3 +11,7 @@ node_modules
 # tests
 coverage
 npm-debug.log
+
+# editors
+.vscode
+.idea
