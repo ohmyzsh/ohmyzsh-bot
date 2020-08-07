@@ -3,8 +3,8 @@ import { different } from "../utils"
 
 async function assign(context: Context) {
   const PRnumber = context.payload.number
-  const owner = context.payload.pull_request.head.user.login
-  const repo = context.payload.pull_request.head.repo.name
+  const owner = context.payload.repository.owner.login
+  const repo = context.payload.repository.name
 
   context.log.info("PR number:", PRnumber, ", owner:", owner, ", repo:", repo)
 
