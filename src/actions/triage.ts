@@ -3,9 +3,9 @@ import { different } from '../utils'
 
 // List of labels determined *only* via the triage function.
 // The result of the triage function will have precedence
-// on these labels over a maintainer having applied them from
-// the GitHub web UI.
-import labelConstants from './labels.json'
+// on these labels over a maintainer having applied them
+// manually via the GitHub web UI.
+import LABELS from './labels.json'
 
 export default async function triagePullRequest (context: Context) {
   // Get PR number and current PR labels
@@ -19,7 +19,7 @@ export default async function triagePullRequest (context: Context) {
   let newLabels = await labelsOfPR(context)
 
   // Add the labels that are not determined via the triage function
-  newLabels = newLabels.concat(oldLabels.filter(label => !Object.values(labelConstants).includes(label)))
+  newLabels = newLabels.concat(oldLabels.filter(label => !Object.values(LABELS).includes(label)))
 
   // If old and new labels are the same skip an API call
   if (!different(oldLabels, newLabels)) {
@@ -61,7 +61,7 @@ async function labelsOfPR (context: Context): Promise<string[]> {
   // If the mergeable field is false, the Pull Request has conflicts
   // NOTE: mergeable might be null if the mergeable state is unknown
   if (context.payload.pull_request.mergeable === false) {
-    labels.add(labelConstants.CONFLICTS)
+    labels.add(LABELS.CONFLICTS)
   }
 
   // Matching functions: based on filepath
@@ -75,17 +75,17 @@ async function labelsOfPR (context: Context): Promise<string[]> {
   for (let { filename, patch } of modifiedFiles) {
     // Belongs to some of these three areas?
     if (isCoreFile(filename)) {
-      labels.add(labelConstants.CORE)
+      labels.add(LABELS.CORE)
     } else if (isPluginFile(filename)) {
-      labels.add(labelConstants.PLUGIN)
+      labels.add(LABELS.PLUGIN)
       // TODO: check if new plugin
     } else if (isThemeFile(filename)) {
-      labels.add(labelConstants.THEME)
+      labels.add(LABELS.THEME)
       // TODO: check if new theme
     }
 
-    // Has documentation?
-    if (/(^README\..+|.+\/README\..+$)/.test(filename)) {
+    // Has documentation? (ends in README.*)
+    if (/(^README\..+|\/README\..+$)/.test(filename)) {
       labels.add('Type: documentation')
       continue
     }
@@ -93,28 +93,28 @@ async function labelsOfPR (context: Context): Promise<string[]> {
     // Match the full filepath to these categories
     switch (true) {
     case /^oh-my-zsh\.(sh|zsh)/.test(filename):
-      labels.add(labelConstants.INIT)
+      labels.add(LABELS.INIT)
       break
     case /^tools\/.*upgrade\.sh/.test(filename):
-      labels.add(labelConstants.UPDATE)
+      labels.add(LABELS.UPDATE)
       break
     case /^tools\/install\.sh/.test(filename):
-      labels.add(labelConstants.INSTALL)
+      labels.add(LABELS.INSTALL)
       break
     case /^tools\/uninstall\.sh/.test(filename):
-      labels.add(labelConstants.UNINSTALL)
+      labels.add(LABELS.UNINSTALL)
       break
     case /^plugins\/aws\//.test(filename):
-      labels.add(labelConstants.PLUGIN_AWS)
+      labels.add(LABELS.PLUGIN_AWS)
       break
     case /^plugins\/git\//.test(filename):
-      labels.add(labelConstants.PLUGIN_GIT)
+      labels.add(LABELS.PLUGIN_GIT)
       break
     case /^plugins\/mercurial\//.test(filename):
-      labels.add(labelConstants.PLUGIN_MERCURIAL)
+      labels.add(LABELS.PLUGIN_MERCURIAL)
       break
     case /^plugins\/tmux\//.test(filename):
-      labels.add(labelConstants.PLUGIN_TMUX)
+      labels.add(LABELS.PLUGIN_TMUX)
       break
     }
 
@@ -123,14 +123,14 @@ async function labelsOfPR (context: Context): Promise<string[]> {
     switch (true) {
     case /\.zsh$/.test(basename):
       if (hasAliasChanges(patch)) {
-        labels.add(labelConstants.ALIAS)
+        labels.add(LABELS.ALIAS)
       }
       if (hasBindkeyChanges(patch)) {
-        labels.add(labelConstants.BINDKEY)
+        labels.add(LABELS.BINDKEY)
       }
       break
     case /^_/.test(basename):
-      labels.add(labelConstants.COMPLETION)
+      labels.add(LABELS.COMPLETION)
       break
     }
   }
