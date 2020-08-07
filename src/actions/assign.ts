@@ -1,7 +1,7 @@
 import { Context, Octokit } from "probot"
 import { different } from "../utils"
 
-async function assign(context: Context) {
+async function assignPullRequestReviewers(context: Context) {
   const PRnumber = context.payload.number
   const owner = context.payload.repository.owner.login
   const repo = context.payload.repository.name
@@ -46,18 +46,19 @@ function parseModifiedFiles(filesResponse: Octokit.PullsListFilesResponse): stri
 function parseCodeOwners(codeownersFile: string): CodeOwner[] {
   const codeOwners: CodeOwner[] = []
   for (const line of codeownersFile.split("\n")) {
+    // ignore empty lines and comments
     if (line.length === 0 || line.startsWith("#")) {
       continue
     }
 
     let [path, owner] = line.split(" ")
 
-    // Ignore first line and empty newline at the end of the file
+    // Allow only owners in the form of @username
     if (!owner?.startsWith("@")) {
       continue
     }
 
-    owner = owner.replace("@", "")
+    owner = owner.slice(1)
 
     const codeOwner: CodeOwner = {
       path: path,
@@ -113,4 +114,4 @@ async function reviewersOfPR(
   return reviewers
 }
 
-export { assign, parseModifiedFiles, parseCodeOwners, CodeOwner }
+export { assignPullRequestReviewers, parseModifiedFiles, parseCodeOwners, CodeOwner }

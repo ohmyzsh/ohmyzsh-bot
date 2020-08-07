@@ -1,5 +1,5 @@
 import { promises as fs } from 'fs'
-import { parseModifiedFiles, parseCodeOwners, CodeOwner } from '../src/actions/assign'
+import { parseModifiedFiles, parseCodeOwners, CodeOwner } from '../src/actions/assign' // eslint-disable-line no-unused-vars
 import modifiedFilesResponse from '../test/fixtures/modifiedFiles.json'
 
 describe('assigning PR reviewers', () => {
