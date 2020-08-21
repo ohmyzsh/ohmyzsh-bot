@@ -1,5 +1,4 @@
 import { Context, Octokit } from "probot"
-import { different } from "../utils"
 
 export default async function assignPullRequestReviewers(context: Context) {
   const PRnumber = context.payload.number
@@ -8,24 +7,20 @@ export default async function assignPullRequestReviewers(context: Context) {
 
   context.log.info("PR number:", PRnumber, ", owner:", owner, ", repo:", repo)
 
-  const oldReviewers: string[] = context.payload.pull_request.requested_reviewers.map(
-    (reviewer: { login: string }) => reviewer.login
-  )
+  const reviewers = await reviewersOfPR(context, PRnumber, owner, repo)
+  const reviewersText = reviewers.map(reviewer => '@' + reviewer).join(', ')
+  context.log.info("Reviewers:", reviewersText || 'none')
 
-  const newReviewers = await reviewersOfPR(context, PRnumber, owner, repo)
+  // If no reviewers assigned, do nothing
+  if (reviewers.length === 0) return
 
-  // Check if old and new reviewers differ. Otherwise we can skip an API call
-  if (different(oldReviewers, newReviewers)) {
-    // Log reviewers replacement
-    context.log.info("Old reviewers:", oldReviewers)
-    context.log.info("New reviewers:", newReviewers)
+  // Otherwise, create a comment mentioning the reviewers
+  const body = `Bleep bloop. I determined that these users own the modified files: ${reviewersText}.`
+  const response = await context.github.issues.createComment({
+    owner, repo, issue_number: PRnumber, body
+  })
 
-    const params = context.repo({ pull_number: PRnumber, reviewers: newReviewers })
-    const response = await context.github.pulls.createReviewRequest(params)
-    context.log.info("Status:", response.headers.status)
-  } else {
-    context.log.info("No reviewers changed")
-  }
+  context.log.info("Comment status:", response.headers.status)
 }
 
 interface CodeOwner {
@@ -116,7 +111,7 @@ async function reviewersOfPR(
     }
   }
 
-  return reviewers
+  return reviewers.sort()
 }
 
 export { parseModifiedFiles, parseCodeOwners, CodeOwner }
