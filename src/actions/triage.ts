@@ -47,9 +47,7 @@ async function labelsOfPR (context: Context): Promise<string[]> {
 
   // Get list of modified files and parse it
   const modifiedFilesResponse = await context.github.pulls.listFiles({
-    owner,
-    repo,
-    pull_number
+    owner, repo, pull_number
   })
   const modifiedFiles: ModifiedFile[] = modifiedFilesResponse.data.map(
     ({ filename, patch }) => ({ filename, patch })
@@ -72,16 +70,22 @@ async function labelsOfPR (context: Context): Promise<string[]> {
   const hasAliasChanges = (patch: string) => /(^|\n)[-+] *alias /.test(patch)
   const hasBindkeyChanges = (patch: string) => /(^|\n)[-+] *bindkey /.test(patch)
 
+  // Gather list of modified plugins and themes for later processing to see if any of them
+  // are new to the repository. Only save the plugin name ('git') or the theme filename
+  // ('robbyrussell.zsh-theme'), not the full path.
+  let modifiedPlugins: Set<string> = new Set()
+  let modifiedThemes: Set<string> = new Set()
+
   for (let { filename, patch } of modifiedFiles) {
     // Belongs to some of these three areas?
     if (isCoreFile(filename)) {
       labels.add(LABELS.CORE)
     } else if (isPluginFile(filename)) {
       labels.add(LABELS.PLUGIN)
-      // TODO: check if new plugin
+      modifiedPlugins.add(filename.split('/')[1]) // Only store the plugin name
     } else if (isThemeFile(filename)) {
       labels.add(LABELS.THEME)
-      // TODO: check if new theme
+      modifiedThemes.add(filename.split('/')[1]) // Only store the theme filename
     }
 
     // Has documentation? (ends in README.*)
@@ -135,5 +139,68 @@ async function labelsOfPR (context: Context): Promise<string[]> {
     }
   }
 
+  // Process the list of modified plugins and themes to see if any of them
+  // are new to the repository.
+  if (areThereNewPlugins(context, modifiedPlugins)) {
+    labels.add(LABELS.NEW_PLUGIN)
+  }
+  if (areThereNewThemes(context, modifiedThemes)) {
+    labels.add(LABELS.NEW_THEME)
+  }
+
   return Array.from(labels)
+}
+
+async function areThereNewPlugins(context: Context, modifiedPlugins: Set<string>): Promise<boolean> {
+  return areThereNewFiles(context, Array.from(modifiedPlugins), 'plugins')
+}
+
+async function areThereNewThemes(context: Context, modifiedThemes: Set<string>): Promise<boolean> {
+  return areThereNewFiles(context, Array.from(modifiedThemes), 'themes')
+}
+
+async function areThereNewFiles(context: Context, modifiedFiles: string[], path: string): Promise<boolean> {
+  const owner = context.payload.repository.owner.login
+  const repo = context.payload.repository.name
+
+  // Process the list of modified plugins and themes to see if any of them
+  // are new to the repository. Two options:
+  // 1. Make a getContents() call for any plugin and theme if only one exists.
+  //    This will be the most common use case since most PRs only modify one.
+  // 2. Make one getContents() call for a list of all the repository plugins and
+  //    themes, then look up the modified files to see if any of them are new.
+
+  if (modifiedFiles.length === 0) return true
+  else if (modifiedFiles.length === 1) { // (1)
+    try {
+      await context.github.repos.getContents({
+        method: 'HEAD', owner, repo,
+        path: `${path}/${modifiedFiles[0]}`
+      })
+    } catch (error) {
+      // If we get a 404 error, the plugin doesn't exist
+      if (error.status === 404) return false
+      else context.log.error(error)
+    }
+    return true
+  } else { // (2)
+    try {
+      let repoFilesResponse = await context.github.repos.getContents({
+        owner, repo, path
+      })
+      let repoFiles = repoFilesResponse.data
+      if (Array.isArray(repoFiles)) {
+        for (let filename of modifiedFiles) {
+          // Check all plugins in the repository for a match.
+          // If none matches, the plugin doesn't exist.
+          if (!repoFiles.some(({ name }) => name === filename)) {
+            return false
+          }
+        }
+      }
+    } catch (error) {
+      context.log.error(error)
+    }
+    return true
+  }
 }
