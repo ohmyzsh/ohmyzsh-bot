@@ -1,15 +1,15 @@
-import { Context, Octokit } from "probot"
+import { Context, Octokit } from 'probot'
 
-export default async function assignPullRequestReviewers(context: Context) {
+export default async function assignPullRequestReviewers (context: Context) {
   const PRnumber = context.payload.number
   const owner = context.payload.repository.owner.login
   const repo = context.payload.repository.name
 
-  context.log.info("PR number:", PRnumber, ", owner:", owner, ", repo:", repo)
+  context.log.info('PR number:', PRnumber, ', owner:', owner, ', repo:', repo)
 
   const reviewers = await reviewersOfPR(context, PRnumber, owner, repo)
   const reviewersText = reviewers.map(reviewer => '@' + reviewer).join(', ')
-  context.log.info("Reviewers:", reviewersText || 'none')
+  context.log.info('Reviewers:', reviewersText || 'none')
 
   // If no reviewers assigned, do nothing
   if (reviewers.length === 0) return
@@ -20,7 +20,7 @@ export default async function assignPullRequestReviewers(context: Context) {
     owner, repo, issue_number: PRnumber, body
   })
 
-  context.log.info("Comment status:", response.headers.status)
+  context.log.info('Comment status:', response.headers.status)
 }
 
 interface CodeOwner {
@@ -28,7 +28,7 @@ interface CodeOwner {
   username: string
 }
 
-function parseModifiedFiles(filesResponse: Octokit.PullsListFilesResponse): string[] {
+function parseModifiedFiles (filesResponse: Octokit.PullsListFilesResponse): string[] {
   const modifiedFiles: string[] = []
 
   for (const file of filesResponse) {
@@ -38,18 +38,18 @@ function parseModifiedFiles(filesResponse: Octokit.PullsListFilesResponse): stri
   return modifiedFiles
 }
 
-function parseCodeOwners(codeOwnersFile: string): CodeOwner[] {
+function parseCodeOwners (codeOwnersFile: string): CodeOwner[] {
   const codeOwners: CodeOwner[] = []
-  for (const line of codeOwnersFile.split("\n")) {
+  for (const line of codeOwnersFile.split('\n')) {
     // Ignore empty lines and comments
-    if (line.length === 0 || line.startsWith("#")) {
+    if (line.length === 0 || line.startsWith('#')) {
       continue
     }
 
-    let [path, owner] = line.split(" ")
+    const [path, owner] = line.split(' ')
 
     // Allow only owners in the form of @username
-    if (!owner?.startsWith("@")) {
+    if (!owner?.startsWith('@')) {
       continue
     }
 
@@ -67,7 +67,7 @@ function parseCodeOwners(codeOwnersFile: string): CodeOwner[] {
 /**
  * @return List of maintainers of the files that were modified in `PRnumber`
  */
-async function reviewersOfPR(
+async function reviewersOfPR (
   context: Context,
   PRnumber: number,
   repoOwner: string,
@@ -79,7 +79,7 @@ async function reviewersOfPR(
   const modifiedFilesResponse = await context.github.pulls.listFiles({
     owner: repoOwner,
     repo: repo,
-    pull_number: PRnumber,
+    pull_number: PRnumber
   })
 
   const filesData: any = modifiedFilesResponse.data
@@ -89,11 +89,11 @@ async function reviewersOfPR(
   const codeOwnersResponse = await context.github.repos.getContents({
     owner: repoOwner,
     repo: repo,
-    path: ".github/CODEOWNERS",
+    path: '.github/CODEOWNERS'
   })
 
   const codeOwnersData: any = codeOwnersResponse.data
-  const codeOwnersFile = Buffer.from(codeOwnersData.content, "base64").toString()
+  const codeOwnersFile = Buffer.from(codeOwnersData.content, 'base64').toString()
   const codeOwners = parseCodeOwners(codeOwnersFile)
 
   // Assumptions:

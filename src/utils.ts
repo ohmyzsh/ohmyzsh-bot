@@ -1,4 +1,4 @@
-function different (A: string[], B: string[]): boolean {
+export function different (A: string[], B: string[]): boolean {
   if (A.length !== B.length) return true
 
   A.sort()
@@ -10,5 +10,3 @@ function different (A: string[], B: string[]): boolean {
 
   return false
 }
-
-export { different }

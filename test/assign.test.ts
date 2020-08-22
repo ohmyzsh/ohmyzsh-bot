@@ -1,10 +1,10 @@
-import { Probot, Application } from 'probot' // eslint-disable-line no-unused-vars
-import nock from 'nock'
-import fs from 'fs'
-
-import assignPullRequestReviewers, { parseModifiedFiles, parseCodeOwners, CodeOwner } from '../src/actions/assign' // eslint-disable-line no-unused-vars
+import assignPullRequestReviewers, { parseModifiedFiles, parseCodeOwners, CodeOwner } from '../src/actions/assign'
 import modifiedFilesResponse from './fixtures/assign/modifiedFiles.json'
 import pullRequestOpenedEvent from './fixtures/assign/pull_request.opened.json'
+
+import { Probot, Application } from 'probot'
+import nock from 'nock'
+import fs from 'fs'
 
 const codeOwnersFile = fs.readFileSync('./test/fixtures/assign/CODEOWNERS').toString()
 
@@ -38,14 +38,14 @@ describe('assign PR reviewers', () => {
   })
 
   test('correctly mentions reviewers when a pull request is opened', async () => {
-    let probot = new Probot({
+    const probot = new Probot({
       id: 1,
       githubToken: 'test',
       throttleOptions: { enabled: false }
     })
     probot.load(probotApp)
 
-    let githubScope = nock('https://api.github.com')
+    const githubScope = nock('https://api.github.com')
 
     // Mock PR listFiles
     githubScope
