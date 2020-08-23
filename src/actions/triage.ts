@@ -43,11 +43,11 @@ async function labelsOfPR (context: Context): Promise<string[]> {
   // Important payload values
   const owner = context.payload.repository.owner.login
   const repo = context.payload.repository.name
-  const pull_number = context.payload.number
+  const PRnumber = context.payload.number
 
   // Get list of modified files and parse it
   const modifiedFilesResponse = await context.github.pulls.listFiles({
-    owner, repo, pull_number
+    owner, repo, pull_number: PRnumber
   })
   const modifiedFiles: ModifiedFile[] = modifiedFilesResponse.data.map(
     ({ filename, patch }) => ({ filename, patch })
@@ -73,10 +73,10 @@ async function labelsOfPR (context: Context): Promise<string[]> {
   // Gather list of modified plugins and themes for later processing to see if any of them
   // are new to the repository. Only save the plugin name ('git') or the theme filename
   // ('robbyrussell.zsh-theme'), not the full path.
-  let modifiedPlugins: Set<string> = new Set()
-  let modifiedThemes: Set<string> = new Set()
+  const modifiedPlugins: Set<string> = new Set()
+  const modifiedThemes: Set<string> = new Set()
 
-  for (let { filename, patch } of modifiedFiles) {
+  for (const { filename, patch } of modifiedFiles) {
     // Belongs to some of these three areas?
     if (isCoreFile(filename)) {
       labels.add(LABELS.CORE)
@@ -96,46 +96,46 @@ async function labelsOfPR (context: Context): Promise<string[]> {
 
     // Match the full filepath to these categories
     switch (true) {
-    case /^oh-my-zsh\.(sh|zsh)/.test(filename):
-      labels.add(LABELS.INIT)
-      break
-    case /^tools\/.*upgrade\.sh/.test(filename):
-      labels.add(LABELS.UPDATE)
-      break
-    case /^tools\/install\.sh/.test(filename):
-      labels.add(LABELS.INSTALL)
-      break
-    case /^tools\/uninstall\.sh/.test(filename):
-      labels.add(LABELS.UNINSTALL)
-      break
-    case /^plugins\/aws\//.test(filename):
-      labels.add(LABELS.PLUGIN_AWS)
-      break
-    case /^plugins\/git\//.test(filename):
-      labels.add(LABELS.PLUGIN_GIT)
-      break
-    case /^plugins\/mercurial\//.test(filename):
-      labels.add(LABELS.PLUGIN_MERCURIAL)
-      break
-    case /^plugins\/tmux\//.test(filename):
-      labels.add(LABELS.PLUGIN_TMUX)
-      break
+      case /^oh-my-zsh\.(sh|zsh)/.test(filename):
+        labels.add(LABELS.INIT)
+        break
+      case /^tools\/.*upgrade\.sh/.test(filename):
+        labels.add(LABELS.UPDATE)
+        break
+      case /^tools\/install\.sh/.test(filename):
+        labels.add(LABELS.INSTALL)
+        break
+      case /^tools\/uninstall\.sh/.test(filename):
+        labels.add(LABELS.UNINSTALL)
+        break
+      case /^plugins\/aws\//.test(filename):
+        labels.add(LABELS.PLUGIN_AWS)
+        break
+      case /^plugins\/git\//.test(filename):
+        labels.add(LABELS.PLUGIN_GIT)
+        break
+      case /^plugins\/mercurial\//.test(filename):
+        labels.add(LABELS.PLUGIN_MERCURIAL)
+        break
+      case /^plugins\/tmux\//.test(filename):
+        labels.add(LABELS.PLUGIN_TMUX)
+        break
     }
 
     // Match only the last part of the filename
     const basename = filename.split('/').slice(-1)[0]
     switch (true) {
-    case /\.zsh$/.test(basename):
-      if (hasAliasChanges(patch)) {
-        labels.add(LABELS.ALIAS)
-      }
-      if (hasBindkeyChanges(patch)) {
-        labels.add(LABELS.BINDKEY)
-      }
-      break
-    case /^_/.test(basename):
-      labels.add(LABELS.COMPLETION)
-      break
+      case /\.zsh$/.test(basename):
+        if (hasAliasChanges(patch)) {
+          labels.add(LABELS.ALIAS)
+        }
+        if (hasBindkeyChanges(patch)) {
+          labels.add(LABELS.BINDKEY)
+        }
+        break
+      case /^_/.test(basename):
+        labels.add(LABELS.COMPLETION)
+        break
     }
   }
 
@@ -151,15 +151,15 @@ async function labelsOfPR (context: Context): Promise<string[]> {
   return Array.from(labels)
 }
 
-async function areThereNewPlugins(context: Context, modifiedPlugins: Set<string>): Promise<boolean> {
+async function areThereNewPlugins (context: Context, modifiedPlugins: Set<string>): Promise<boolean> {
   return areThereNewFiles(context, Array.from(modifiedPlugins), 'plugins')
 }
 
-async function areThereNewThemes(context: Context, modifiedThemes: Set<string>): Promise<boolean> {
+async function areThereNewThemes (context: Context, modifiedThemes: Set<string>): Promise<boolean> {
   return areThereNewFiles(context, Array.from(modifiedThemes), 'themes')
 }
 
-async function areThereNewFiles(context: Context, modifiedFiles: string[], path: string): Promise<boolean> {
+async function areThereNewFiles (context: Context, modifiedFiles: string[], path: string): Promise<boolean> {
   const owner = context.payload.repository.owner.login
   const repo = context.payload.repository.name
 
@@ -174,7 +174,9 @@ async function areThereNewFiles(context: Context, modifiedFiles: string[], path:
   else if (modifiedFiles.length === 1) { // (1)
     try {
       await context.github.repos.getContents({
-        method: 'HEAD', owner, repo,
+        method: 'HEAD',
+        owner,
+        repo,
         path: `${path}/${modifiedFiles[0]}`
       })
     } catch (error) {
@@ -185,12 +187,12 @@ async function areThereNewFiles(context: Context, modifiedFiles: string[], path:
     return false
   } else { // (2)
     try {
-      let repoFilesResponse = await context.github.repos.getContents({
+      const repoFilesResponse = await context.github.repos.getContents({
         owner, repo, path
       })
-      let repoFiles = repoFilesResponse.data
+      const repoFiles = repoFilesResponse.data
       if (Array.isArray(repoFiles)) {
-        for (let filename of modifiedFiles) {
+        for (const filename of modifiedFiles) {
           // Check all plugins in the repository for a match.
           // If none matches, the plugin doesn't exist.
           if (!repoFiles.some(({ name }) => name === filename)) {
