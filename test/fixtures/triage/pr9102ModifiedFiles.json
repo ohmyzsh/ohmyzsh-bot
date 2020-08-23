@@ -1,0 +1,26 @@
+[
+  {
+    "sha": "ab9d329f6f8dc11ac0bd0ebf8d6d1c7602625a1f",
+    "filename": "plugins/dotenv/README.md",
+    "status": "modified",
+    "additions": 15,
+    "deletions": 9,
+    "changes": 24,
+    "blob_url": "https://github.com/ohmyzsh/ohmyzsh/blob/d771734400f1ffaf7e0bb703cc3df1676241ecc6/plugins/dotenv/README.md",
+    "raw_url": "https://github.com/ohmyzsh/ohmyzsh/raw/d771734400f1ffaf7e0bb703cc3df1676241ecc6/plugins/dotenv/README.md",
+    "contents_url": "https://api.github.com/repos/ohmyzsh/ohmyzsh/contents/plugins/dotenv/README.md?ref=d771734400f1ffaf7e0bb703cc3df1676241ecc6",
+    "patch": "@@ -53,24 +53,30 @@ Set `ZSH_DOTENV_PROMPT=false` in your zshrc file if you don't want the confirmat\n You can also choose the `Always` option when prompted to always allow sourcing the .env file\n in that directory. See the next section for more details.\n \n-### ZSH_DOTENV_ALLOWED_LIST\n+### ZSH_DOTENV_ALLOWED_LIST, ZSH_DOTENV_DISALLOWED_LIST\n \n The default behavior of the plugin is to always ask whether to source a dotenv file. There's\n-a **Y**es, **N**o, and **A**lways option. If you choose Always, the directory of the .env file\n-will be added to an allowed list. If a directory is found in this list, the plugin won't ask\n-for confirmation and will instead source the .env file directly.\n+a **Y**es, **N**o, **A**lways and N**e**ver option. If you choose Always, the directory of the .env file\n+will be added to an allowed list; if you choose Never, it will be added to a disallowed list.\n+If a directory is found in either of those lists, the plugin won't ask for confirmation and will\n+instead either source the .env file or proceed without action respectively.\n \n-This allowed list is saved by default in `$ZSH_CACHE_DIR/dotenv-allowed.list`. If you want\n-to change that location, change the `$ZSH_DOTENV_ALLOWED_LIST` variable, like so:\n+The allowed and disallowed lists are saved by default in `$ZSH_CACHE_DIR/dotenv-allowed.list` and\n+`$ZSH_CACHE_DIR/dotenv-disallowed.list` respectively. If you want to change that location,\n+change the `$ZSH_DOTENV_ALLOWED_LIST` and `$ZSH_DOTENV_DISALLOWED_LIST` variables, like so:\n \n ```zsh\n # in ~/.zshrc, before Oh My Zsh is sourced:\n ZSH_DOTENV_ALLOWED_LIST=/path/to/dotenv/allowed/list\n+ZSH_DOTENV_DISALLOWED_LIST=/path/to/dotenv/disallowed/list\n ```\n \n-This file is just a list of directories allowed, separated by a newline character. If you want\n-to disallow a directory, just edit this file and remove the line for the directory you want to\n-disallow.\n+The file is just a list of directories, separated by a newline character. If you want\n+to change your decision, just edit the file and remove the line for the directory you want to\n+change.\n+\n+NOTE: if a directory is found in both the allowed and disallowed lists, the disallowed list\n+takes preference, _i.e._ the .env file will never be sourced.\n \n ## Version Control\n "
+  },
+  {
+    "sha": "24f285df555de97a46abce8906a985d83718e36d",
+    "filename": "plugins/dotenv/dotenv.plugin.zsh",
+    "status": "modified",
+    "additions": 10,
+    "deletions": 2,
+    "changes": 12,
+    "blob_url": "https://github.com/ohmyzsh/ohmyzsh/blob/d771734400f1ffaf7e0bb703cc3df1676241ecc6/plugins/dotenv/dotenv.plugin.zsh",
+    "raw_url": "https://github.com/ohmyzsh/ohmyzsh/raw/d771734400f1ffaf7e0bb703cc3df1676241ecc6/plugins/dotenv/dotenv.plugin.zsh",
+    "contents_url": "https://api.github.com/repos/ohmyzsh/ohmyzsh/contents/plugins/dotenv/dotenv.plugin.zsh?ref=d771734400f1ffaf7e0bb703cc3df1676241ecc6",
+    "patch": "@@ -5,6 +5,7 @@\n \n # Path to the file containing allowed paths\n : ${ZSH_DOTENV_ALLOWED_LIST:=\"${ZSH_CACHE_DIR:-$ZSH/cache}/dotenv-allowed.list\"}\n+: ${ZSH_DOTENV_DISALLOWED_LIST:=\"${ZSH_CACHE_DIR:-$ZSH/cache}/dotenv-disallowed.list\"}\n \n \n ## Functions\n@@ -14,19 +15,26 @@ source_env() {\n     if [[ \"$ZSH_DOTENV_PROMPT\" != false ]]; then\n       local confirmation dirpath=\"${PWD:A}\"\n \n-      # make sure there is an allowed file\n+      # make sure there is an (dis-)allowed file\n       touch \"$ZSH_DOTENV_ALLOWED_LIST\"\n+      touch \"$ZSH_DOTENV_DISALLOWED_LIST\"\n+\n+      # early return if disallowed\n+      if grep -q \"$dirpath\" \"$ZSH_DOTENV_DISALLOWED_LIST\" &>/dev/null; then\n+        return;\n+      fi\n \n       # check if current directory's .env file is allowed or ask for confirmation\n       if ! grep -q \"$dirpath\" \"$ZSH_DOTENV_ALLOWED_LIST\" &>/dev/null; then\n         # print same-line prompt and output newline character if necessary\n-        echo -n \"dotenv: found '$ZSH_DOTENV_FILE' file. Source it? ([Y]es/[n]o/[a]lways) \"\n+        echo -n \"dotenv: found '$ZSH_DOTENV_FILE' file. Source it? ([Y]es/[n]o/[a]lways/n[e]ver) \"\n         read -k 1 confirmation; [[ \"$confirmation\" != $'\\n' ]] && echo\n \n         # check input\n         case \"$confirmation\" in\n           [nN]) return ;;\n           [aA]) echo \"$dirpath\" >> \"$ZSH_DOTENV_ALLOWED_LIST\" ;;\n+          [eE]) echo \"$dirpath\" >> \"$ZSH_DOTENV_DISALLOWED_LIST\"; return ;;\n           *) ;; # interpret anything else as a yes\n         esac\n       fi"
+  }
+]

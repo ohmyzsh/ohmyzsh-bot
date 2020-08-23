@@ -1,9 +1,5 @@
 FROM node:alpine
 
-RUN apk add --no-cache \
-    zsh \
-    git
-
 # Environment settings
 WORKDIR /app
 
