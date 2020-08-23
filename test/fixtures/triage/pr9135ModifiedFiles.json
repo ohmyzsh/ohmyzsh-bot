@@ -1,0 +1,14 @@
+[
+  {
+    "sha": "992f26d5c2a5574cdf4753c6a8859eb97ebbd335",
+    "filename": "plugins/laravel/laravel.plugin.zsh",
+    "status": "modified",
+    "additions": 1,
+    "deletions": 0,
+    "changes": 1,
+    "blob_url": "https://github.com/ohmyzsh/ohmyzsh/blob/bdb0fb6bb3cafdab2b0129bb8e0de78a05763fa7/plugins/laravel/laravel.plugin.zsh",
+    "raw_url": "https://github.com/ohmyzsh/ohmyzsh/raw/bdb0fb6bb3cafdab2b0129bb8e0de78a05763fa7/plugins/laravel/laravel.plugin.zsh",
+    "contents_url": "https://api.github.com/repos/ohmyzsh/ohmyzsh/contents/plugins/laravel/laravel.plugin.zsh?ref=bdb0fb6bb3cafdab2b0129bb8e0de78a05763fa7",
+    "patch": "@@ -1,6 +1,7 @@\n #!zsh\n alias artisan='php artisan'\n alias bob='php artisan bob::build'\n+alias tinker='php artisan tinker'\n \n # Development\n alias pas='php artisan serve'"
+  }
+]
