@@ -3,6 +3,8 @@ import LABELS from '../src/actions/labels.json'
 
 import pr9135OpenedEvent from './fixtures/triage/pr9135.opened.json'
 import pr9135ModifiedFiles from './fixtures/triage/pr9135ModifiedFiles.json'
+import pr9102SynchronizeEvent from './fixtures/triage/pr9102.synchronize.json'
+import pr9102ModifiedFiles from './fixtures/triage/pr9102ModifiedFiles.json'
 
 import { Probot, Application } from 'probot'
 import nock from 'nock'
@@ -54,5 +56,22 @@ describe('triage Pull Request', () => {
 
     // Receive a webhook event
     await probot.receive({ id: 'event-id', name: 'pull_request', payload: pr9135OpenedEvent })
+  })
+
+  test('correctly labels a pull request when it is synchronized', async () => {
+    // Mock PR listFiles
+    githubScope
+      .get('/repos/ohmyzsh/ohmyzsh/pulls/9102/files')
+      .reply(200, pr9102ModifiedFiles)
+
+    // Mock plugin getContents
+    githubScope
+      .head('/repos/ohmyzsh/ohmyzsh/contents/plugins/dotenv')
+      .reply(200)
+
+    // We don't need to mock anything else, labels shouldn't be changed
+
+    // Receive a webhook event
+    await probot.receive({ id: 'event-id', name: 'pull_request', payload: pr9102SynchronizeEvent })
   })
 })
