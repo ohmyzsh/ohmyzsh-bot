@@ -15,5 +15,6 @@
   "ALIAS": "Topic: alias",
   "BINDKEY": "Topic: bindkey",
   "COMPLETION": "Topic: completion",
-  "CONFLICTS": "Status: conflicts"
+  "CONFLICTS": "Status: conflicts",
+  "DOCUMENTATION": "Type: documentation"
 }

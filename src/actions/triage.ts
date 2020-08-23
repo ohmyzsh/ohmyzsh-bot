@@ -20,6 +20,10 @@ export default async function triagePullRequest (context: Context) {
 
   // Add the labels that are not determined via the triage function
   newLabels = newLabels.concat(oldLabels.filter(label => !Object.values(LABELS).includes(label)))
+  // If the DOCUMENTATION label is present in oldLabels, keep it
+  if (oldLabels.includes(LABELS.DOCUMENTATION) && !newLabels.includes(LABELS.DOCUMENTATION)) {
+    newLabels.push(LABELS.DOCUMENTATION)
+  }
 
   // If old and new labels are the same skip an API call
   if (!different(oldLabels, newLabels)) {
@@ -90,7 +94,7 @@ async function labelsOfPR (context: Context): Promise<string[]> {
 
     // Has documentation? (ends in README.*)
     if (/(^README\..+|\/README\..+$)/.test(filename)) {
-      labels.add('Type: documentation')
+      labels.add(LABELS.DOCUMENTATION)
       continue
     }
 
