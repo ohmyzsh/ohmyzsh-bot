@@ -15,9 +15,9 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "nodemon --watch src -e js,ts,json --exec \"npm run build && npm run start\"",
-    "lint": "standardx **/*.ts --fix",
+    "lint": "standardx --fix '**/*.ts'",
     "start": "probot run ./lib/index.js",
-    "test": "jest && standardx **/*.ts",
+    "test": "jest && standardx '**/*.ts'",
     "test:watch": "jest --watch --notify --notifyMode=change --coverage"
   },
   "dependencies": {
