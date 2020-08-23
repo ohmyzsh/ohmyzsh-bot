@@ -1,6 +1,6 @@
-import { Context } from 'probot' // eslint-disable-line no-unused-vars
+import { Context } from 'probot'
 import { execSync } from 'child_process'
-import { different } from "../utils"
+import { different } from '../utils'
 
 // List of labels determined *only* via the triage function.
 // The result of the triage function will have precedence
@@ -19,8 +19,8 @@ export default async function triage (context: Context) {
   // Get clone URL of repository and repository directory
   // Export them to the environment for the triage script
   const repoURL = context.payload.repository.clone_url
-  process.env['REPO_URL'] = repoURL
-  process.env['REPO_DIR'] = `${process.cwd()}/github`
+  process.env.REPO_URL = repoURL
+  process.env.REPO_DIR = `${process.cwd()}/github`
 
   let newLabels: string[] = []
   try {

@@ -1,13 +1,25 @@
-import { promises as fs } from 'fs'
-import { parseModifiedFiles, parseCodeOwners, CodeOwner } from '../src/actions/assign' // eslint-disable-line no-unused-vars
-import modifiedFilesResponse from '../test/fixtures/modifiedFiles.json'
+import assignPullRequestReviewers, { parseModifiedFiles, parseCodeOwners, CodeOwner } from '../src/actions/assign'
+import modifiedFilesResponse from './fixtures/assign/modifiedFiles.json'
+import pullRequestOpenedEvent from './fixtures/assign/pull_request.opened.json'
 
-describe('assigning PR reviewers', () => {
+import { Probot, Application } from 'probot'
+import nock from 'nock'
+import fs from 'fs'
+
+const codeOwnersFile = fs.readFileSync('./test/fixtures/assign/CODEOWNERS').toString()
+
+nock.disableNetConnect()
+
+// Only test the assign action
+const probotApp = (app: Application) => {
+  app.on('pull_request.opened', assignPullRequestReviewers)
+}
+
+describe('assign PR reviewers', () => {
   test('correctly parses modified files', async () => {
     const expectedModifiedFiles = ['plugins/gitfast/update']
-    const modifiedFiles = await parseModifiedFiles(modifiedFilesResponse)
-
-    expect(modifiedFiles.sort()).toEqual(expectedModifiedFiles.sort())
+    const modifiedFiles = parseModifiedFiles(modifiedFilesResponse)
+    expect(modifiedFiles).toEqual(expectedModifiedFiles)
   })
 
   test('correctly parses CODEOWNERS file', async () => {
@@ -21,10 +33,41 @@ describe('assigning PR reviewers', () => {
         username: 'rgoldberg'
       }
     ]
-
-    const codeOwnersFile = await fs.readFile('./test/fixtures/CODEOWNERS')
-    const codeOwners = await parseCodeOwners(codeOwnersFile.toString())
-
+    const codeOwners = parseCodeOwners(codeOwnersFile)
     expect(codeOwners.sort()).toEqual(expectedCodeOwners.sort())
+  })
+
+  test('correctly mentions reviewers when a pull request is opened', async () => {
+    const probot = new Probot({
+      id: 1,
+      githubToken: 'test',
+      throttleOptions: { enabled: false }
+    })
+    probot.load(probotApp)
+
+    const githubScope = nock('https://api.github.com')
+
+    // Mock PR listFiles
+    githubScope
+      .get('/repos/bartekpacia/ohmyzsh/pulls/13/files')
+      .reply(200, modifiedFilesResponse)
+
+    // Mock CODEOWNERS file getContents
+    githubScope
+      .get('/repos/bartekpacia/ohmyzsh/contents/.github/CODEOWNERS')
+      .reply(200, { content: Buffer.from(codeOwnersFile).toString('base64') })
+
+    // Mock PR createComment
+    githubScope
+      .post('/repos/bartekpacia/ohmyzsh/issues/13/comments', (req: any) => {
+        expect(req.body).toMatch(/(^|\s)@felipec\b/)
+        return true
+      })
+      .reply(200)
+
+    // Receive a webhook event
+    await probot.receive({ id: 'event-id', name: 'pull_request', payload: pullRequestOpenedEvent })
+
+    expect(githubScope.isDone()).toBe(true)
   })
 })
