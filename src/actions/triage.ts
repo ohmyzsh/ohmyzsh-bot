@@ -141,10 +141,10 @@ async function labelsOfPR (context: Context): Promise<string[]> {
 
   // Process the list of modified plugins and themes to see if any of them
   // are new to the repository.
-  if (areThereNewPlugins(context, modifiedPlugins)) {
+  if (await areThereNewPlugins(context, modifiedPlugins)) {
     labels.add(LABELS.NEW_PLUGIN)
   }
-  if (areThereNewThemes(context, modifiedThemes)) {
+  if (await areThereNewThemes(context, modifiedThemes)) {
     labels.add(LABELS.NEW_THEME)
   }
 
@@ -170,7 +170,7 @@ async function areThereNewFiles(context: Context, modifiedFiles: string[], path:
   // 2. Make one getContents() call for a list of all the repository plugins and
   //    themes, then look up the modified files to see if any of them are new.
 
-  if (modifiedFiles.length === 0) return true
+  if (modifiedFiles.length === 0) return false
   else if (modifiedFiles.length === 1) { // (1)
     try {
       await context.github.repos.getContents({
@@ -179,10 +179,10 @@ async function areThereNewFiles(context: Context, modifiedFiles: string[], path:
       })
     } catch (error) {
       // If we get a 404 error, the plugin doesn't exist
-      if (error.status === 404) return false
+      if (error.status === 404) return true
       else context.log.error(error)
     }
-    return true
+    return false
   } else { // (2)
     try {
       let repoFilesResponse = await context.github.repos.getContents({
@@ -194,13 +194,13 @@ async function areThereNewFiles(context: Context, modifiedFiles: string[], path:
           // Check all plugins in the repository for a match.
           // If none matches, the plugin doesn't exist.
           if (!repoFiles.some(({ name }) => name === filename)) {
-            return false
+            return true
           }
         }
       }
     } catch (error) {
       context.log.error(error)
     }
-    return true
+    return false
   }
 }
