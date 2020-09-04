@@ -1,6 +1,6 @@
 {
   "name": "ohmyzsh-bot",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "A bot to manage the ohmyzsh project",
   "author": "Marc Cornellà <marc.cornella@live.com>",
   "license": "ISC",
@@ -68,7 +68,10 @@
     },
     "settings": {
       "import/parsers": {
-        "@typescript-eslint/parser": [".ts", ".tsx"]
+        "@typescript-eslint/parser": [
+          ".ts",
+          ".tsx"
+        ]
       },
       "import/resolver": {
         "typescript": {
