@@ -7,7 +7,12 @@ export default async function assignPullRequestReviewers (context: Context) {
 
   context.log.info('PR number:', PRnumber, ', owner:', owner, ', repo:', repo)
 
-  const reviewers = await reviewersOfPR(context, PRnumber, owner, repo)
+  let reviewers = await reviewersOfPR(context, PRnumber, owner, repo)
+
+  // Remove author of the PR from the reviewers list
+  const author = context.payload.pull_request.user.login
+  reviewers = reviewers.filter(reviewer => reviewer !== author)
+
   const reviewersText = reviewers.map(reviewer => '@' + reviewer).join(', ')
   context.log.info('Reviewers:', reviewersText || 'none')
 
