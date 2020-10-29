@@ -51,7 +51,7 @@ function parseCodeOwners (codeOwnersFile: string): CodeOwner[] {
       continue
     }
 
-    const [path, owner] = line.split(' ')
+    const [path, owner] = line.split(/\s+/)
 
     // Allow only owners in the form of @username
     if (!owner?.startsWith('@')) {
