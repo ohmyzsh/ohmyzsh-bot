@@ -23,4 +23,4 @@ For more, check out the [Contributing Guide](CONTRIBUTING.md).
 
 ## License
 
-[ISC](LICENSE) © 2019 Marc Cornellà <marc.cornella@live.com> (https://github.com/ohmyzsh/ohmyzsh-bot)
+[ISC](LICENSE) © 2019-2022 Marc Cornellà <hello@mcornella.com> (https://github.com/ohmyzsh/ohmyzsh-bot)
