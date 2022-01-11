@@ -112,18 +112,6 @@ async function labelsOfPR (context: Context): Promise<string[]> {
       case /^tools\/uninstall\.sh/.test(filename):
         labels.add(LABELS.UNINSTALL)
         break
-      case /^plugins\/aws\//.test(filename):
-        labels.add(LABELS.PLUGIN_AWS)
-        break
-      case /^plugins\/git\//.test(filename):
-        labels.add(LABELS.PLUGIN_GIT)
-        break
-      case /^plugins\/mercurial\//.test(filename):
-        labels.add(LABELS.PLUGIN_MERCURIAL)
-        break
-      case /^plugins\/tmux\//.test(filename):
-        labels.add(LABELS.PLUGIN_TMUX)
-        break
     }
 
     // Match only the last part of the filename
