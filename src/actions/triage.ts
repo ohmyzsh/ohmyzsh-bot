@@ -163,38 +163,46 @@ async function areThereNewFiles (context: Context, modifiedFiles: string[], path
   //    themes, then look up the modified files to see if any of them are new.
 
   if (modifiedFiles.length === 0) return false
-  else if (modifiedFiles.length === 1) { // (1)
-    try {
-      await context.github.repos.getContents({
-        method: 'HEAD',
-        owner,
-        repo,
-        path: `${path}/${modifiedFiles[0]}`
-      })
-    } catch (error) {
-      // If we get a 404 error, the plugin doesn't exist
-      if (error.status === 404) return true
-      else context.log.error(error)
-    }
-    return false
-  } else { // (2)
-    try {
-      const repoFilesResponse = await context.github.repos.getContents({
-        owner, repo, path
-      })
-      const repoFiles = repoFilesResponse.data
-      if (Array.isArray(repoFiles)) {
-        for (const filename of modifiedFiles) {
-          // Check all plugins in the repository for a match.
-          // If none matches, the plugin doesn't exist.
-          if (!repoFiles.some(({ name }) => name === filename)) {
-            return true
-          }
+
+  // (1): only one plugin or theme is modified, just test this one in specific
+  if (modifiedFiles.length === 1) {
+    return context.github.repos.getContents({
+      method: 'HEAD',
+      owner,
+      repo,
+      path: `${path}/${modifiedFiles[0]}`
+    }).then(res => {
+      if (res.status === 404) return true
+      return false
+    }).catch(error => {
+      if (error != null && typeof error === 'object' && 'status' in error) {
+        if ((error as any).status === 404) return true
+      }
+      context.log.error(error)
+      return false
+    })
+  }
+
+  // (2): more than one plugin or theme are modified, get the whole list
+  return context.github.repos.getContents({
+    owner, repo, path
+  }).then(res => {
+    if (res.status === 404) throw new Error(`${path} not found in ${owner}/${repo}`)
+
+    const repoFiles = res.data
+    if (Array.isArray(repoFiles)) {
+      for (const filename of modifiedFiles) {
+        // Check all files in the repository for a match.
+        // If none matches, the plugin / theme doesn't exist.
+        if (!repoFiles.some(({ name }) => name === filename)) {
+          return true
         }
       }
-    } catch (error) {
-      context.log.error(error)
     }
+
     return false
-  }
+  }).catch(error => {
+    context.log.error(error)
+    return false
+  })
 }
