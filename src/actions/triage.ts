@@ -37,7 +37,7 @@ export default async function triagePullRequest (context: Context<'pull_request'
   }
 }
 
-type ModifiedFile = {
+type PullRequestFile = {
   filename: string,
   patch?: string
 }
@@ -49,10 +49,10 @@ async function labelsOfPR (context: Context<'pull_request'>): Promise<string[]> 
   const PRnumber = context.payload.number
 
   // Get list of modified files and parse it
-  const modifiedFilesResponse = await context.octokit.pulls.listFiles({
+  const pullRequestFilesResponse = await context.octokit.pulls.listFiles({
     owner, repo, pull_number: PRnumber
   })
-  const modifiedFiles: ModifiedFile[] = modifiedFilesResponse.data.map(
+  const pullRequestFiles: PullRequestFile[] = pullRequestFilesResponse.data.map(
     ({ filename, patch }) => ({ filename, patch })
   )
 
@@ -76,19 +76,19 @@ async function labelsOfPR (context: Context<'pull_request'>): Promise<string[]> 
   // Gather list of modified plugins and themes for later processing to see if any of them
   // are new to the repository. Only save the plugin name ('git') or the theme filename
   // ('robbyrussell.zsh-theme'), not the full path.
-  const modifiedPlugins: Set<string> = new Set()
-  const modifiedThemes: Set<string> = new Set()
+  const pullRequestPlugins: Set<string> = new Set()
+  const pullRequestThemes: Set<string> = new Set()
 
-  for (const { filename, patch } of modifiedFiles) {
+  for (const { filename, patch } of pullRequestFiles) {
     // Belongs to some of these three areas?
     if (isCoreFile(filename)) {
       labels.add(LABELS.CORE)
     } else if (isPluginFile(filename)) {
       labels.add(LABELS.PLUGIN)
-      modifiedPlugins.add(filename.split('/')[1]) // Only store the plugin name
+      pullRequestPlugins.add(filename.split('/')[1]) // Only store the plugin name
     } else if (isThemeFile(filename)) {
       labels.add(LABELS.THEME)
-      modifiedThemes.add(filename.split('/')[1]) // Only store the theme filename
+      pullRequestThemes.add(filename.split('/')[1]) // Only store the theme filename
     }
 
     // Has documentation? (ends in README.*)
@@ -130,27 +130,26 @@ async function labelsOfPR (context: Context<'pull_request'>): Promise<string[]> 
     }
   }
 
-  // Process the list of modified plugins and themes to see if any of them
-  // are new to the repository.
-  if (await areThereNewPlugins(context, modifiedPlugins)) {
+  // Check the list of modified plugins and themes for new ones
+  if (await areThereNewPlugins(context, pullRequestPlugins)) {
     labels.add(LABELS.NEW_PLUGIN)
   }
-  if (await areThereNewThemes(context, modifiedThemes)) {
+  if (await areThereNewThemes(context, pullRequestThemes)) {
     labels.add(LABELS.NEW_THEME)
   }
 
   return Array.from(labels)
 }
 
-async function areThereNewPlugins (context: Context<'pull_request'>, modifiedPlugins: Set<string>): Promise<boolean> {
-  return areThereNewFiles(context, Array.from(modifiedPlugins), 'plugins')
+async function areThereNewPlugins (context: Context<'pull_request'>, pullRequestPlugins: Set<string>): Promise<boolean> {
+  return areThereNewFiles(context, Array.from(pullRequestPlugins), 'plugins')
 }
 
-async function areThereNewThemes (context: Context<'pull_request'>, modifiedThemes: Set<string>): Promise<boolean> {
-  return areThereNewFiles(context, Array.from(modifiedThemes), 'themes')
+async function areThereNewThemes (context: Context<'pull_request'>, pullRequestThemes: Set<string>): Promise<boolean> {
+  return areThereNewFiles(context, Array.from(pullRequestThemes), 'themes')
 }
 
-async function areThereNewFiles (context: Context<'pull_request'>, modifiedFiles: string[], path: string): Promise<boolean> {
+async function areThereNewFiles (context: Context<'pull_request'>, pullRequestFiles: string[], path: string): Promise<boolean> {
   const owner = context.payload.repository.owner.login
   const repo = context.payload.repository.name
 
@@ -161,15 +160,15 @@ async function areThereNewFiles (context: Context<'pull_request'>, modifiedFiles
   // 2. Make one getContent() call for a list of all the repository plugins and
   //    themes, then look up the modified files to see if any of them are new.
 
-  if (modifiedFiles.length === 0) return false
+  if (pullRequestFiles.length === 0) return false
 
   // (1): only one plugin or theme is modified, just test this one in specific
-  if (modifiedFiles.length === 1) {
+  if (pullRequestFiles.length === 1) {
     return context.octokit.repos.getContent({
       method: 'HEAD',
       owner,
       repo,
-      path: `${path}/${modifiedFiles[0]}`
+      path: `${path}/${pullRequestFiles[0]}`
     }).then(() => {
       return false
     }).catch(error => {
@@ -187,7 +186,7 @@ async function areThereNewFiles (context: Context<'pull_request'>, modifiedFiles
   }).then(res => {
     const repoFiles = res.data
     if (Array.isArray(repoFiles)) {
-      for (const filename of modifiedFiles) {
+      for (const filename of pullRequestFiles) {
         // Check all files in the repository for a match.
         // If none matches, the plugin / theme doesn't exist.
         if (!repoFiles.some(({ name }) => name === filename)) {
@@ -195,7 +194,6 @@ async function areThereNewFiles (context: Context<'pull_request'>, modifiedFiles
         }
       }
     }
-
     return false
   }).catch(error => {
     context.log.error(error)
