@@ -7,7 +7,7 @@ import { different } from '../utils'
 // manually via the GitHub web UI.
 import LABELS from './labels.json'
 
-export default async function triagePullRequest (context: Context) {
+export default async function triagePullRequest (context: Context<'pull_request'>): Promise<void> {
   // Get PR number and current PR labels
   const PRNumber = context.payload.number
   const oldLabels: string[] = context.payload.pull_request.labels.map((label: { name: string }) => label.name)
@@ -43,8 +43,8 @@ type ModifiedFile = {
   patch?: string
 }
 
-async function labelsOfPR (context: Context): Promise<string[]> {
-  // Important payload values
+async function labelsOfPR (context: Context<'pull_request'>): Promise<string[]> {
+  // Important context.payload values
   const owner = context.payload.repository.owner.login
   const repo = context.payload.repository.name
   const PRnumber = context.payload.number
@@ -143,15 +143,15 @@ async function labelsOfPR (context: Context): Promise<string[]> {
   return Array.from(labels)
 }
 
-async function areThereNewPlugins (context: Context, modifiedPlugins: Set<string>): Promise<boolean> {
+async function areThereNewPlugins (context: Context<'pull_request'>, modifiedPlugins: Set<string>): Promise<boolean> {
   return areThereNewFiles(context, Array.from(modifiedPlugins), 'plugins')
 }
 
-async function areThereNewThemes (context: Context, modifiedThemes: Set<string>): Promise<boolean> {
+async function areThereNewThemes (context: Context<'pull_request'>, modifiedThemes: Set<string>): Promise<boolean> {
   return areThereNewFiles(context, Array.from(modifiedThemes), 'themes')
 }
 
-async function areThereNewFiles (context: Context, modifiedFiles: string[], path: string): Promise<boolean> {
+async function areThereNewFiles (context: Context<'pull_request'>, modifiedFiles: string[], path: string): Promise<boolean> {
   const owner = context.payload.repository.owner.login
   const repo = context.payload.repository.name
 
@@ -167,12 +167,10 @@ async function areThereNewFiles (context: Context, modifiedFiles: string[], path
   // (1): only one plugin or theme is modified, just test this one in specific
   if (modifiedFiles.length === 1) {
     return context.octokit.repos.getContent({
-      method: 'HEAD',
       owner,
       repo,
       path: `${path}/${modifiedFiles[0]}`
-    }).then(res => {
-      if (res.status === 404) return true
+    }).then(() => {
       return false
     }).catch(error => {
       if (error != null && typeof error === 'object' && 'status' in error) {
@@ -187,8 +185,6 @@ async function areThereNewFiles (context: Context, modifiedFiles: string[], path
   return context.octokit.repos.getContent({
     owner, repo, path
   }).then(res => {
-    if (res.status === 404) throw new Error(`${path} not found in ${owner}/${repo}`)
-
     const repoFiles = res.data
     if (Array.isArray(repoFiles)) {
       for (const filename of modifiedFiles) {

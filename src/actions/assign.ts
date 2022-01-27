@@ -1,7 +1,7 @@
 import { Context } from 'probot'
 import { GetResponseDataTypeFromEndpointMethod } from '@octokit/types'
 
-export default async function assignPullRequestReviewers (context: Context) {
+export default async function assignPullRequestReviewers (context: Context<'pull_request'>) {
   const PRnumber = context.payload.number
   const owner = context.payload.repository.owner.login
   const repo = context.payload.repository.name
@@ -76,7 +76,7 @@ function parseCodeOwners (codeOwnersFile: string): CodeOwner[] {
  * @return List of maintainers of the files that were modified in `PRnumber`
  */
 async function reviewersOfPR (
-  context: Context,
+  context: Context<'pull_request'>,
   PRnumber: number,
   repoOwner: string,
   repo: string
