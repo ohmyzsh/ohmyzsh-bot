@@ -1,11 +1,12 @@
-import { Context, Octokit } from 'probot'
+import { Context } from 'probot'
+import { GetResponseDataTypeFromEndpointMethod } from '@octokit/types'
 
 export default async function assignPullRequestReviewers (context: Context) {
   const PRnumber = context.payload.number
   const owner = context.payload.repository.owner.login
   const repo = context.payload.repository.name
 
-  context.log.info('PR number:', PRnumber, ', owner:', owner, ', repo:', repo)
+  context.log.info(`PR number: ${PRnumber}, repo: ${owner}/${repo}`)
 
   let reviewers = await reviewersOfPR(context, PRnumber, owner, repo)
 
@@ -14,18 +15,18 @@ export default async function assignPullRequestReviewers (context: Context) {
   reviewers = reviewers.filter(reviewer => reviewer !== author)
 
   const reviewersText = reviewers.map(reviewer => '@' + reviewer).join(', ')
-  context.log.info('Reviewers:', reviewersText || 'none')
+  context.log.info(`Reviewers: ${reviewersText || 'none'}`)
 
   // If no reviewers assigned, do nothing
   if (reviewers.length === 0) return
 
   // Otherwise, create a comment mentioning the reviewers
   const body = `Bleep bloop. I determined that these users own the modified files: ${reviewersText}.`
-  const response = await context.github.issues.createComment({
+  const response = await context.octokit.issues.createComment({
     owner, repo, issue_number: PRnumber, body
   })
 
-  context.log.info('Comment status:', response.headers.status)
+  context.log.info(`Comment status: ${response.status}`)
 }
 
 interface CodeOwner {
@@ -33,7 +34,9 @@ interface CodeOwner {
   username: string
 }
 
-function parseModifiedFiles (filesResponse: Octokit.PullsListFilesResponse): string[] {
+type PullsListFilesResponseData = GetResponseDataTypeFromEndpointMethod<Context['octokit']['pulls']['listFiles']>
+
+function parseModifiedFiles (filesResponse: PullsListFilesResponseData): string[] {
   const modifiedFiles: string[] = []
 
   for (const file of filesResponse) {
@@ -81,23 +84,23 @@ async function reviewersOfPR (
   const reviewers: string[] = []
 
   // Get list of modified files
-  const modifiedFilesResponse = await context.github.pulls.listFiles({
+  const modifiedFilesResponse = await context.octokit.pulls.listFiles({
     owner: repoOwner,
     repo: repo,
     pull_number: PRnumber
   })
 
-  const filesData: any = modifiedFilesResponse.data
+  const filesData = modifiedFilesResponse.data
   const modifiedFiles = parseModifiedFiles(filesData)
 
   // Get CODEOWNERS file contents
-  const codeOwnersResponse = await context.github.repos.getContents({
+  const codeOwnersResponse = await context.octokit.repos.getContent({
     owner: repoOwner,
     repo: repo,
     path: '.github/CODEOWNERS'
   })
 
-  const codeOwnersData: any = codeOwnersResponse.data
+  const codeOwnersData = codeOwnersResponse.data
   const codeOwnersFile = Buffer.from(codeOwnersData.content, 'base64').toString()
   const codeOwners = parseCodeOwners(codeOwnersFile)
 

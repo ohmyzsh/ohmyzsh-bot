@@ -6,19 +6,19 @@ import pr9135ModifiedFiles from './fixtures/triage/pr9135ModifiedFiles.json'
 import pr9102SynchronizeEvent from './fixtures/triage/pr9102.synchronize.json'
 import pr9102ModifiedFiles from './fixtures/triage/pr9102ModifiedFiles.json'
 
-import { Probot, Application } from 'probot'
+import { Probot, ProbotOctokit } from 'probot'
 import nock from 'nock'
 
 // Only test the triage action
-const probotApp = (app: Application) => {
+const probotApp = (app: Probot) => {
   app.on(['pull_request.opened', 'pull_request.synchronize'], triagePullRequest)
 }
 
 describe('triage Pull Request', () => {
   const probot = new Probot({
-    id: 1,
+    appId: 1,
     githubToken: 'test',
-    throttleOptions: { enabled: false }
+    Octokit: ProbotOctokit.defaults({ retry: { enabled: false }, throttle: { enabled: false } })
   })
   probot.load(probotApp)
 
@@ -43,13 +43,13 @@ describe('triage Pull Request', () => {
 
     // Mock plugin getContents
     githubScope
-      .head('/repos/ohmyzsh/ohmyzsh/contents/plugins/laravel')
+      .head('/repos/ohmyzsh/ohmyzsh/contents/plugins%2Flaravel')
       .reply(200)
 
     // Mock PR replaceLabels
     githubScope
       .put('/repos/ohmyzsh/ohmyzsh/issues/9135/labels', (body: any) => {
-        expect(body.sort()).toMatchObject(expectedLabels.sort())
+        expect(body.labels.sort()).toMatchObject(expectedLabels.sort())
         return true
       })
       .reply(200)
@@ -66,7 +66,7 @@ describe('triage Pull Request', () => {
 
     // Mock plugin getContents
     githubScope
-      .head('/repos/ohmyzsh/ohmyzsh/contents/plugins/dotenv')
+      .head('/repos/ohmyzsh/ohmyzsh/contents/plugins%2Fdotenv')
       .reply(200)
 
     // We don't need to mock anything else, labels shouldn't be changed
