@@ -34,7 +34,7 @@ interface CodeOwner {
   username: string
 }
 
-type PullsListFilesResponseData = GetResponseDataTypeFromEndpointMethod<Context['octokit']['pulls']['listFiles']>
+export type PullsListFilesResponseData = GetResponseDataTypeFromEndpointMethod<Context['octokit']['pulls']['listFiles']>
 
 function parseModifiedFiles (filesResponse: PullsListFilesResponseData): string[] {
   const modifiedFiles: string[] = []
@@ -94,13 +94,15 @@ async function reviewersOfPR (
   const modifiedFiles = parseModifiedFiles(filesData)
 
   // Get CODEOWNERS file contents
-  const codeOwnersResponse = await context.octokit.repos.getContent({
+  const { data: codeOwnersData } = await context.octokit.repos.getContent({
     owner: repoOwner,
     repo: repo,
     path: '.github/CODEOWNERS'
   })
 
-  const codeOwnersData = codeOwnersResponse.data
+  // Check that the API returned the contents of the CODEOWNERS file
+  if (!('content' in codeOwnersData)) return []
+
   const codeOwnersFile = Buffer.from(codeOwnersData.content, 'base64').toString()
   const codeOwners = parseCodeOwners(codeOwnersFile)
 

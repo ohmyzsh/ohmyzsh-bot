@@ -42,9 +42,9 @@ export default async function triagePullRequest (context: Context) {
   }
 }
 
-interface ModifiedFile {
+type ModifiedFile = {
   filename: string,
-  patch: string
+  patch?: string
 }
 
 async function labelsOfPR (context: Context): Promise<string[]> {
@@ -75,8 +75,8 @@ async function labelsOfPR (context: Context): Promise<string[]> {
   const isPluginFile = (file: string) => file.startsWith('plugins/')
   const isThemeFile = (file: string) => file.startsWith('themes/')
   // Matching functions: based on patch contents
-  const hasAliasChanges = (patch: string) => /(^|\n)[-+] *alias /.test(patch)
-  const hasBindkeyChanges = (patch: string) => /(^|\n)[-+] *bindkey /.test(patch)
+  const hasAliasChanges = (patch?: string) => patch != null && /(^|\n)[-+] *alias /.test(patch)
+  const hasBindkeyChanges = (patch?: string) => patch != null && /(^|\n)[-+] *bindkey /.test(patch)
 
   // Gather list of modified plugins and themes for later processing to see if any of them
   // are new to the repository. Only save the plugin name ('git') or the theme filename
