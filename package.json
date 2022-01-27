@@ -79,8 +79,5 @@
         }
       }
     }
-  },
-  "jest": {
-    "testEnvironment": "node"
   }
 }
