@@ -187,6 +187,9 @@ export default {
         allow_squash_merge: true,
         allow_merge_commit: true,
         allow_rebase_merge: true,
+        is_template: false,
+        topics: [],
+        visibility: 'public',
         delete_branch_on_merge: false
       }
     },
@@ -316,6 +319,9 @@ export default {
         allow_squash_merge: true,
         allow_merge_commit: true,
         allow_rebase_merge: true,
+        is_template: false,
+        topics: [],
+        visibility: 'public',
         delete_branch_on_merge: false
       }
     },
@@ -346,6 +352,7 @@ export default {
       }
     },
     author_association: 'NONE',
+    auto_merge: null,
     active_lock_reason: null,
     merged: false,
     mergeable: null,
@@ -458,6 +465,9 @@ export default {
     forks: 20205,
     open_issues: 721,
     watchers: 113748,
+    is_template: false,
+    topics: [],
+    visibility: 'public',
     default_branch: 'master'
   },
   organization: {
