@@ -41,7 +41,7 @@ describe('triage Pull Request', () => {
       .get('/repos/ohmyzsh/ohmyzsh/pulls/9135/files')
       .reply(200, pr9135ModifiedFiles)
 
-    // Mock plugin getContents
+    // Mock plugin getContent
     githubScope
       .get('/repos/ohmyzsh/ohmyzsh/contents/plugins%2Flaravel')
       .reply(200)
@@ -64,7 +64,7 @@ describe('triage Pull Request', () => {
       .get('/repos/ohmyzsh/ohmyzsh/pulls/9102/files')
       .reply(200, pr9102ModifiedFiles)
 
-    // Mock plugin getContents
+    // Mock plugin getContent
     githubScope
       .get('/repos/ohmyzsh/ohmyzsh/contents/plugins%2Fdotenv')
       .reply(200)
@@ -73,5 +73,34 @@ describe('triage Pull Request', () => {
 
     // Receive a webhook event
     await probot.receive({ id: 'event-id', name: 'pull_request', payload: pr9102SynchronizeEvent })
+  })
+
+  test('correctly labels a pull request with new plugins when it is opened', async () => {
+    const expectedLabels = [
+      LABELS.ALIAS,
+      LABELS.PLUGIN,
+      LABELS.NEW_PLUGIN
+    ]
+
+    // Mock PR listFiles
+    githubScope
+      .get('/repos/ohmyzsh/ohmyzsh/pulls/9135/files')
+      .reply(200, pr9135ModifiedFiles)
+
+    // Mock plugin getContent
+    githubScope
+      .get('/repos/ohmyzsh/ohmyzsh/contents/plugins%2Flaravel')
+      .reply(404)
+
+    // Mock PR replaceLabels
+    githubScope
+      .put('/repos/ohmyzsh/ohmyzsh/issues/9135/labels', (body: any) => {
+        expect(body.labels.sort()).toMatchObject(expectedLabels.sort())
+        return true
+      })
+      .reply(200)
+
+    // Receive a webhook event
+    await probot.receive({ id: 'event-id', name: 'pull_request', payload: pr9135OpenedEvent })
   })
 })
