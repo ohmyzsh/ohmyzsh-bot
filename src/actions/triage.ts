@@ -7,17 +7,13 @@ import { different } from '../utils'
 // manually via the GitHub web UI.
 import LABELS from './labels.json'
 
-function labelsString (labels: string[]): string {
-  return `[${labels.map(label => `'${label}'`).join(', ')}]`
-}
-
 export default async function triagePullRequest (context: Context) {
   // Get PR number and current PR labels
   const PRNumber = context.payload.number
   const oldLabels: string[] = context.payload.pull_request.labels.map((label: { name: string }) => label.name)
 
   // A little bit of helpful logging
-  context.log.info(`PR Number: ${PRNumber}, labels: ${labelsString(oldLabels)}`)
+  context.log.info(`PR Number: ${PRNumber}, labels: ${JSON.stringify(oldLabels)}`)
 
   // Get new PR labels
   let newLabels = await labelsOfPR(context)
@@ -34,8 +30,8 @@ export default async function triagePullRequest (context: Context) {
     context.log.info('No labels changed')
   } else {
     // Log label replacement
-    context.log.info(`Old labels: ${labelsString(oldLabels)}`)
-    context.log.info(`New labels: ${labelsString(newLabels)}`)
+    context.log.info(`Old labels: ${JSON.stringify(oldLabels)}`)
+    context.log.info(`New labels: ${JSON.stringify(newLabels)}`)
 
     const params = context.repo({ issue_number: PRNumber, labels: newLabels })
     await context.octokit.issues.setLabels(params)
