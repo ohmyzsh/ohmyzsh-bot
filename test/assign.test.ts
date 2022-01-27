@@ -1,6 +1,6 @@
 import assignPullRequestReviewers, { parseModifiedFiles, parseCodeOwners, CodeOwner } from '../src/actions/assign'
 import modifiedFilesResponse from './fixtures/assign/modifiedFiles'
-import pullRequestOpenedEvent from './fixtures/assign/pull_request.opened.json'
+import pullRequestOpenedEvent from './fixtures/assign/pull_request.opened'
 
 import { Probot, ProbotOctokit } from 'probot'
 import nock from 'nock'

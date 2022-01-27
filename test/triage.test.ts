@@ -1,9 +1,9 @@
 import triagePullRequest from '../src/actions/triage'
 import LABELS from '../src/actions/labels.json'
 
-import pr9135OpenedEvent from './fixtures/triage/pr9135.opened.json'
+import pr9135OpenedEvent from './fixtures/triage/pr9135.opened'
 import pr9135ModifiedFiles from './fixtures/triage/pr9135ModifiedFiles.json'
-import pr9102SynchronizeEvent from './fixtures/triage/pr9102.synchronize.json'
+import pr9102SynchronizeEvent from './fixtures/triage/pr9102.synchronize'
 import pr9102ModifiedFiles from './fixtures/triage/pr9102ModifiedFiles.json'
 
 import { Probot, ProbotOctokit } from 'probot'
