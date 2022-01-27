@@ -7,13 +7,13 @@ import { different } from '../utils'
 // manually via the GitHub web UI.
 import LABELS from './labels.json'
 
-export default async function triagePullRequest (context: Context) {
+export default async function triagePullRequest (context: Context<'pull_request'>): Promise<void> {
   // Get PR number and current PR labels
   const PRNumber = context.payload.number
   const oldLabels: string[] = context.payload.pull_request.labels.map((label: { name: string }) => label.name)
 
   // A little bit of helpful logging
-  context.log.info('PR Number:', PRNumber, 'labels:', oldLabels)
+  context.log.info(`PR Number: ${PRNumber}, labels: ${JSON.stringify(oldLabels)}`)
 
   // Get new PR labels
   let newLabels = await labelsOfPR(context)
@@ -30,27 +30,27 @@ export default async function triagePullRequest (context: Context) {
     context.log.info('No labels changed')
   } else {
     // Log label replacement
-    context.log.info('Old labels:', oldLabels)
-    context.log.info('New labels:', newLabels)
+    context.log.info(`Old labels: ${JSON.stringify(oldLabels)}`)
+    context.log.info(`New labels: ${JSON.stringify(newLabels)}`)
 
     const params = context.repo({ issue_number: PRNumber, labels: newLabels })
-    await context.github.issues.replaceLabels(params)
+    await context.octokit.issues.setLabels(params)
   }
 }
 
-interface ModifiedFile {
+type ModifiedFile = {
   filename: string,
-  patch: string
+  patch?: string
 }
 
-async function labelsOfPR (context: Context): Promise<string[]> {
-  // Important payload values
+async function labelsOfPR (context: Context<'pull_request'>): Promise<string[]> {
+  // Important context.payload values
   const owner = context.payload.repository.owner.login
   const repo = context.payload.repository.name
   const PRnumber = context.payload.number
 
   // Get list of modified files and parse it
-  const modifiedFilesResponse = await context.github.pulls.listFiles({
+  const modifiedFilesResponse = await context.octokit.pulls.listFiles({
     owner, repo, pull_number: PRnumber
   })
   const modifiedFiles: ModifiedFile[] = modifiedFilesResponse.data.map(
@@ -71,8 +71,8 @@ async function labelsOfPR (context: Context): Promise<string[]> {
   const isPluginFile = (file: string) => file.startsWith('plugins/')
   const isThemeFile = (file: string) => file.startsWith('themes/')
   // Matching functions: based on patch contents
-  const hasAliasChanges = (patch: string) => /(^|\n)[-+] *alias /.test(patch)
-  const hasBindkeyChanges = (patch: string) => /(^|\n)[-+] *bindkey /.test(patch)
+  const hasAliasChanges = (patch?: string) => patch != null && /(^|\n)[-+] *alias /.test(patch)
+  const hasBindkeyChanges = (patch?: string) => patch != null && /(^|\n)[-+] *bindkey /.test(patch)
 
   // Gather list of modified plugins and themes for later processing to see if any of them
   // are new to the repository. Only save the plugin name ('git') or the theme filename
@@ -143,36 +143,34 @@ async function labelsOfPR (context: Context): Promise<string[]> {
   return Array.from(labels)
 }
 
-async function areThereNewPlugins (context: Context, modifiedPlugins: Set<string>): Promise<boolean> {
+async function areThereNewPlugins (context: Context<'pull_request'>, modifiedPlugins: Set<string>): Promise<boolean> {
   return areThereNewFiles(context, Array.from(modifiedPlugins), 'plugins')
 }
 
-async function areThereNewThemes (context: Context, modifiedThemes: Set<string>): Promise<boolean> {
+async function areThereNewThemes (context: Context<'pull_request'>, modifiedThemes: Set<string>): Promise<boolean> {
   return areThereNewFiles(context, Array.from(modifiedThemes), 'themes')
 }
 
-async function areThereNewFiles (context: Context, modifiedFiles: string[], path: string): Promise<boolean> {
+async function areThereNewFiles (context: Context<'pull_request'>, modifiedFiles: string[], path: string): Promise<boolean> {
   const owner = context.payload.repository.owner.login
   const repo = context.payload.repository.name
 
   // Process the list of modified plugins and themes to see if any of them
   // are new to the repository. Two options:
-  // 1. Make a getContents() call for any plugin and theme if only one exists.
+  // 1. Make a getContent() call for any plugin and theme if only one exists.
   //    This will be the most common use case since most PRs only modify one.
-  // 2. Make one getContents() call for a list of all the repository plugins and
+  // 2. Make one getContent() call for a list of all the repository plugins and
   //    themes, then look up the modified files to see if any of them are new.
 
   if (modifiedFiles.length === 0) return false
 
   // (1): only one plugin or theme is modified, just test this one in specific
   if (modifiedFiles.length === 1) {
-    return context.github.repos.getContents({
-      method: 'HEAD',
+    return context.octokit.repos.getContent({
       owner,
       repo,
       path: `${path}/${modifiedFiles[0]}`
-    }).then(res => {
-      if (res.status === 404) return true
+    }).then(() => {
       return false
     }).catch(error => {
       if (error != null && typeof error === 'object' && 'status' in error) {
@@ -184,11 +182,9 @@ async function areThereNewFiles (context: Context, modifiedFiles: string[], path
   }
 
   // (2): more than one plugin or theme are modified, get the whole list
-  return context.github.repos.getContents({
+  return context.octokit.repos.getContent({
     owner, repo, path
   }).then(res => {
-    if (res.status === 404) throw new Error(`${path} not found in ${owner}/${repo}`)
-
     const repoFiles = res.data
     if (Array.isArray(repoFiles)) {
       for (const filename of modifiedFiles) {

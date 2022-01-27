@@ -1,8 +1,8 @@
 import assignPullRequestReviewers, { parseModifiedFiles, parseCodeOwners, CodeOwner } from '../src/actions/assign'
-import modifiedFilesResponse from './fixtures/assign/modifiedFiles.json'
-import pullRequestOpenedEvent from './fixtures/assign/pull_request.opened.json'
+import modifiedFilesResponse from './fixtures/assign/modifiedFiles'
+import pullRequestOpenedEvent from './fixtures/assign/pull_request.opened'
 
-import { Probot, Application } from 'probot'
+import { Probot, ProbotOctokit } from 'probot'
 import nock from 'nock'
 import fs from 'fs'
 
@@ -11,7 +11,7 @@ const codeOwnersFile = fs.readFileSync('./test/fixtures/assign/CODEOWNERS').toSt
 nock.disableNetConnect()
 
 // Only test the assign action
-const probotApp = (app: Application) => {
+const probotApp = (app: Probot) => {
   app.on('pull_request.opened', assignPullRequestReviewers)
 }
 
@@ -39,9 +39,9 @@ describe('assign PR reviewers', () => {
 
   test('correctly mentions reviewers when a pull request is opened', async () => {
     const probot = new Probot({
-      id: 1,
+      appId: 1,
       githubToken: 'test',
-      throttleOptions: { enabled: false }
+      Octokit: ProbotOctokit.defaults({ retry: { enabled: false }, throttle: { enabled: false } })
     })
     probot.load(probotApp)
 
@@ -52,9 +52,9 @@ describe('assign PR reviewers', () => {
       .get('/repos/bartekpacia/ohmyzsh/pulls/13/files')
       .reply(200, modifiedFilesResponse)
 
-    // Mock CODEOWNERS file getContents
+    // Mock CODEOWNERS file getContent
     githubScope
-      .get('/repos/bartekpacia/ohmyzsh/contents/.github/CODEOWNERS')
+      .get('/repos/bartekpacia/ohmyzsh/contents/.github%2FCODEOWNERS')
       .reply(200, { content: Buffer.from(codeOwnersFile).toString('base64') })
 
     // Mock PR createComment
