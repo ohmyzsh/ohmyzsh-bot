@@ -43,7 +43,7 @@ describe('triage Pull Request', () => {
 
     // Mock plugin getContent
     githubScope
-      .get('/repos/ohmyzsh/ohmyzsh/contents/plugins%2Flaravel')
+      .head('/repos/ohmyzsh/ohmyzsh/contents/plugins%2Flaravel')
       .reply(200)
 
     // Mock PR replaceLabels
@@ -66,7 +66,7 @@ describe('triage Pull Request', () => {
 
     // Mock plugin getContent
     githubScope
-      .get('/repos/ohmyzsh/ohmyzsh/contents/plugins%2Fdotenv')
+      .head('/repos/ohmyzsh/ohmyzsh/contents/plugins%2Fdotenv')
       .reply(200)
 
     // We don't need to mock anything else, labels shouldn't be changed
@@ -89,7 +89,7 @@ describe('triage Pull Request', () => {
 
     // Mock plugin getContent
     githubScope
-      .get('/repos/ohmyzsh/ohmyzsh/contents/plugins%2Flaravel')
+      .head('/repos/ohmyzsh/ohmyzsh/contents/plugins%2Flaravel')
       .reply(404)
 
     // Mock PR replaceLabels

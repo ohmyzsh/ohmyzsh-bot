@@ -30,7 +30,6 @@ export default async function triagePullRequest (context: Context<'pull_request'
     context.log.info('No labels changed')
   } else {
     // Log label replacement
-    context.log.info(`Old labels: ${JSON.stringify(oldLabels)}`)
     context.log.info(`New labels: ${JSON.stringify(newLabels)}`)
 
     const params = context.repo({ issue_number: PRNumber, labels: newLabels })
@@ -167,6 +166,7 @@ async function areThereNewFiles (context: Context<'pull_request'>, modifiedFiles
   // (1): only one plugin or theme is modified, just test this one in specific
   if (modifiedFiles.length === 1) {
     return context.octokit.repos.getContent({
+      method: 'HEAD',
       owner,
       repo,
       path: `${path}/${modifiedFiles[0]}`
