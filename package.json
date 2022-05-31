@@ -1,6 +1,6 @@
 {
   "name": "ohmyzsh-bot",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "A bot to manage the ohmyzsh project",
   "author": "Marc Cornellà <hello@mcornella.com>",
   "license": "ISC",
