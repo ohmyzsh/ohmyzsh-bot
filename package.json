@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@types/nock": "^11.1.0",
-    "@types/node": "^20.11.28",
+    "@types/node": "^20.11.30",
     "nock": "^13.5.4",
     "probot": "^13.0.2",
     "typescript": "^5.4.3"
