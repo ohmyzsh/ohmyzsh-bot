@@ -24,7 +24,7 @@
     "@types/nock": "^11.1.0",
     "@types/node": "^20.12.7",
     "nock": "^13.5.4",
-    "probot": "^13.1.2",
+    "probot": "^13.2.0",
     "typescript": "^5.4.5"
   },
   "devDependencies": {
