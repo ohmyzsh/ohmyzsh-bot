@@ -8,3 +8,5 @@ updates:
     groups:
       dependencies:
         applies-to: version-updates
+        patterns:
+          - "*"
