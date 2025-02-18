@@ -182,7 +182,8 @@ export default {
         is_template: false,
         topics: [],
         visibility: 'public',
-        delete_branch_on_merge: false
+        delete_branch_on_merge: false,
+        web_commit_signoff_required: false
       }
     },
     base: {
@@ -314,7 +315,8 @@ export default {
         is_template: false,
         topics: [],
         visibility: 'public',
-        delete_branch_on_merge: false
+        delete_branch_on_merge: false,
+        web_commit_signoff_required: false
       }
     },
     _links: {
@@ -460,7 +462,8 @@ export default {
     is_template: false,
     topics: [],
     visibility: 'public',
-    default_branch: 'master'
+    default_branch: 'master',
+    web_commit_signoff_required: false
   },
   sender: {
     login: 'bartekpacia',
@@ -486,4 +489,4 @@ export default {
     id: 10376642,
     node_id: 'MDIzOkludGVncmF0aW9uSW5zdGFsbGF0aW9uMTAzNzY2NDI='
   }
-} as PullRequestOpenedEvent
+} satisfies PullRequestOpenedEvent

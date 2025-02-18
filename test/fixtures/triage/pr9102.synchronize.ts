@@ -207,7 +207,8 @@ export default {
         is_template: false,
         topics: [],
         visibility: 'public',
-        delete_branch_on_merge: false
+        delete_branch_on_merge: false,
+    web_commit_signoff_required: false
       }
     },
     base: {
@@ -339,7 +340,8 @@ export default {
         is_template: false,
         topics: [],
         visibility: 'public',
-        delete_branch_on_merge: false
+        delete_branch_on_merge: false,
+        web_commit_signoff_required: false
       }
     },
     _links: {
@@ -487,7 +489,8 @@ export default {
     is_template: false,
     topics: [],
     visibility: 'public',
-    default_branch: 'master'
+    default_branch: 'master',
+    web_commit_signoff_required: false
   },
   organization: {
     login: 'ohmyzsh',
@@ -527,4 +530,4 @@ export default {
     id: 5790348,
     node_id: 'MDIzOkludGVncmF0aW9uSW5zdGFsbGF0aW9uNTc5MDM0OA=='
   }
-} as PullRequestSynchronizeEvent
+} satisfies PullRequestSynchronizeEvent

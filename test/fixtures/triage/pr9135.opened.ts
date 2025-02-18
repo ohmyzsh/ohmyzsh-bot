@@ -42,18 +42,10 @@ export default {
     merged_at: null,
     merge_commit_sha: null,
     assignee: null,
-    assignees: [
-
-    ],
-    requested_reviewers: [
-
-    ],
-    requested_teams: [
-
-    ],
-    labels: [
-
-    ],
+    assignees: [],
+    requested_reviewers: [],
+    requested_teams: [],
+    labels: [],
     milestone: null,
     draft: false,
     commits_url: 'https://api.github.com/repos/ohmyzsh/ohmyzsh/pulls/9135/commits',
@@ -190,7 +182,8 @@ export default {
         is_template: false,
         topics: [],
         visibility: 'public',
-        delete_branch_on_merge: false
+        delete_branch_on_merge: false,
+        web_commit_signoff_required: false
       }
     },
     base: {
@@ -322,7 +315,8 @@ export default {
         is_template: false,
         topics: [],
         visibility: 'public',
-        delete_branch_on_merge: false
+        delete_branch_on_merge: false,
+        web_commit_signoff_required: false
       }
     },
     _links: {
@@ -468,7 +462,8 @@ export default {
     is_template: false,
     topics: [],
     visibility: 'public',
-    default_branch: 'master'
+    default_branch: 'master',
+    web_commit_signoff_required: false
   },
   organization: {
     login: 'ohmyzsh',
@@ -508,4 +503,4 @@ export default {
     id: 5790348,
     node_id: 'MDIzOkludGVncmF0aW9uSW5zdGFsbGF0aW9uNTc5MDM0OA=='
   }
-} as PullRequestOpenedEvent
+} satisfies PullRequestOpenedEvent
