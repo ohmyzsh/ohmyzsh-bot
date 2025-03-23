@@ -21,7 +21,7 @@
     "test:watch": "jest --watch --notify --notifyMode=change --coverage"
   },
   "dependencies": {
-    "@types/node": "^22.13.10",
+    "@types/node": "^22.13.11",
     "nock": "^14.0.1",
     "probot": "^13.4.4",
     "typescript": "^5.8.2"
@@ -29,9 +29,9 @@
   "devDependencies": {
     "@types/debug": "^4.1.12",
     "@types/jest": "^29.5.14",
-    "@typescript-eslint/eslint-plugin": "^8.26.1",
-    "@typescript-eslint/parser": "^8.26.1",
-    "eslint-import-resolver-typescript": "^3.9.0",
+    "@typescript-eslint/eslint-plugin": "^8.27.0",
+    "@typescript-eslint/parser": "^8.27.0",
+    "eslint-import-resolver-typescript": "^4.2.2",
     "eslint-plugin-import": "^2.31.0",
     "jest": "^29.7.0",
     "nodemon": "^3.1.9",
