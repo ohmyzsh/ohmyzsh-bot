@@ -21,7 +21,7 @@
     "test:watch": "jest --watch --notify --notifyMode=change --coverage"
   },
   "dependencies": {
-    "@types/node": "^24.9.1",
+    "@types/node": "^24.9.2",
     "nock": "^14.0.10",
     "probot": "^14.2.1",
     "typescript": "^5.9.3"
