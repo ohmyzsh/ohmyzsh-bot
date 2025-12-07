@@ -29,7 +29,7 @@
   "devDependencies": {
     "@types/debug": "^4.1.12",
     "@types/jest": "^30.0.0",
-    "@typescript-eslint/eslint-plugin": "^8.48.0",
+    "@typescript-eslint/eslint-plugin": "^8.48.1",
     "@typescript-eslint/parser": "^8.32.1",
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-import": "^2.32.0",
@@ -37,7 +37,7 @@
     "nodemon": "^3.1.11",
     "smee-client": "^5.0.0",
     "standardx": "^7.0.0",
-    "ts-jest": "^29.4.5"
+    "ts-jest": "^29.4.6"
   },
   "overrides": {
     "smee-client": {
