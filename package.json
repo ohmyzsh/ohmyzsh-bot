@@ -24,12 +24,12 @@
     "@types/node": "^25.6.0",
     "nock": "^14.0.12",
     "probot": "^14.3.2",
-    "typescript": "^6.0.2"
+    "typescript": "^6.0.3"
   },
   "devDependencies": {
     "@types/debug": "^4.1.13",
     "@types/jest": "^30.0.0",
-    "@typescript-eslint/eslint-plugin": "^8.58.1",
+    "@typescript-eslint/eslint-plugin": "^8.58.2",
     "@typescript-eslint/parser": "^8.32.1",
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-import": "^2.32.0",
