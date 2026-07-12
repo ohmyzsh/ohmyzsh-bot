@@ -21,15 +21,15 @@
     "test:watch": "jest --watch --notify --notifyMode=change --coverage"
   },
   "dependencies": {
-    "@types/node": "^26.1.0",
+    "@types/node": "^26.1.1",
     "nock": "^14.0.16",
     "probot": "^14.3.2",
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.2"
   },
   "devDependencies": {
     "@types/debug": "^4.1.13",
     "@types/jest": "^30.0.0",
-    "@typescript-eslint/eslint-plugin": "^8.62.1",
+    "@typescript-eslint/eslint-plugin": "^8.63.0",
     "@typescript-eslint/parser": "^8.32.1",
     "eslint-import-resolver-typescript": "^4.4.5",
     "eslint-plugin-import": "^2.32.0",
